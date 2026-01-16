@@ -8,21 +8,46 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --tg-bg: #0e1621; --tg-secondary: #17212b; --tg-text: #ffffff; --trust-blue: #3390ec; --scam-red: #ff595a; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--tg-bg); color: var(--tg-text); margin: 0; padding: 0; overflow-x: hidden; }
+        :root { 
+            --tg-bg: #0e1621; 
+            --tg-secondary: #17212b; 
+            --tg-text: #ffffff; 
+            --trust-blue: #3390ec; 
+            --scam-red: #ff595a; 
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: var(--tg-bg); 
+            color: var(--tg-text); 
+            margin: 0; 
+            padding: 0; 
+            padding-bottom: 80px; /* নেভিগেশন মেনুর জন্য জায়গা */
+            overflow-x: hidden; 
+        }
         
-        .header { padding: 15px; background: var(--tg-secondary); display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        /* Header & Profile Icon */
+        .header { 
+            padding: 15px; 
+            background: var(--tg-secondary); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+        }
         .user-avatar { width: 45px; height: 45px; background: #2481cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
-        
+        .info-btn { margin-left: auto; color: var(--trust-blue); font-size: 20px; cursor: pointer; }
+
         /* নোটিশ স্টাইল */
         .notice-container { padding: 10px 15px; display: flex; flex-direction: column; gap: 8px; }
         .notice-top { background: rgba(51, 144, 236, 0.1); color: var(--trust-blue); padding: 12px; border-radius: 12px; font-size: 13px; border-left: 4px solid var(--trust-blue); line-height: 1.4; }
         .notice-alert { background: rgba(255, 89, 90, 0.1); color: var(--scam-red); padding: 12px; border-radius: 12px; font-size: 13px; border-left: 4px solid var(--scam-red); line-height: 1.4; }
 
+        /* সার্চ বক্স */
         .search-area { padding: 10px 15px; }
         .search-box { background: var(--tg-secondary); border-radius: 12px; padding: 14px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
         .search-box input { background: none; border: none; color: white; width: 100%; outline: none; margin-left: 10px; font-size: 16px; }
         
+        /* স্লাইডার কার্ড */
         .slider-section { padding: 10px 0 25px 15px; }
         .slider-container { display: flex; overflow-x: auto; gap: 15px; padding-right: 15px; scrollbar-width: none; }
         .slider-container::-webkit-scrollbar { display: none; }
@@ -30,13 +55,49 @@
         .box-card { min-width: 170px; max-width: 170px; background: var(--tg-secondary); border-radius: 22px; padding: 20px 15px; text-align: center; position: relative; border-bottom: 4px solid transparent; }
         .img-wrapper { width: 80px; height: 80px; border-radius: 20px; margin: 0 auto 12px; overflow: hidden; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); }
         .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        .img-wrapper i { font-size: 30px; }
         
-        .name { font-weight: bold; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .verified-tick { color: #3390ec; font-size: 14px; }
-        .id-text { font-size: 12px; color: #708499; display: block; margin-top: 5px; }
+        /* নতুন ভেরিফাইড ব্যাজ */
+        .name { font-weight: bold; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .verified-badge {
+            color: #00a2ff;
+            font-size: 14px;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .verified-badge .fa-check {
+            position: absolute;
+            font-size: 7px;
+            color: white;
+        }
+
+        .id-text { font-size: 12px; color: #708499; display: block; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .fab { position: fixed; bottom: 25px; right: 20px; background: #2481cc; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: none; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 100; }
+        /* বটম নেভিগেশন মেনু */
+        .nav-menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--tg-secondary);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            z-index: 1000;
+        }
+        .nav-item {
+            color: #708499;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            gap: 4px;
+        }
+        .nav-item.active { color: var(--trust-blue); }
+        .nav-item i { font-size: 20px; }
     </style>
 </head>
 <body>
@@ -47,6 +108,7 @@
             <div id="uName" style="font-weight: bold; font-size: 15px;">Loading...</div>
             <div id="uId" style="font-size: 12px; color: #708499;">ID: 00000000</div>
         </div>
+        <i class="fas fa-info-circle info-btn" onclick="window.location.href='about.html'"></i>
     </div>
 
     <div class="notice-container">
@@ -57,7 +119,7 @@
     <div class="search-area">
         <div class="search-box">
             <i class="fas fa-search" style="color: #708499;"></i>
-            <input type="text" id="searchInput" placeholder="Search by ID or Name..." onkeyup="fetchData()">
+            <input type="text" id="searchInput" placeholder="Search by ID, Name or Number..." onkeyup="fetchData()">
         </div>
     </div>
 
@@ -71,10 +133,27 @@
         <div class="slider-container" id="scamList"></div>
     </div>
 
-    <button class="fab" onclick="window.location.href='report.html'"><i class="fas fa-plus"></i></button>
+    <div class="nav-menu">
+        <a href="index.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="report.html" class="nav-item">
+            <i class="fas fa-plus-circle"></i>
+            <span>Report</span>
+        </a>
+        <a href="history.html" class="nav-item">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>Profile</span>
+        </a>
+    </div>
 
     <script>
-        const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
+        const SB_URL = "https://detrmszrwyolybdecqpn.supabase.co"; 
         const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
@@ -87,9 +166,8 @@
             document.getElementById('uInit').innerText = user.first_name.charAt(0).toUpperCase();
         }
 
-        // --- নোটিশ লোড করার ফাংশন ---
         async function loadSettings() {
-            const { data, error } = await _supabase.from('settings').select('*');
+            const { data } = await _supabase.from('settings').select('*');
             if (data) {
                 data.forEach(item => {
                     if (item.id === 'top_notice') document.getElementById('topNotice').innerText = item.content;
@@ -100,12 +178,13 @@
 
         async function fetchData() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            let { data: posts, error } = await _supabase.from('posts').select('*').eq('status', 'approved');
+            let { data: posts } = await _supabase.from('posts').select('*').eq('status', 'approved');
 
             if (query && posts) {
                 posts = posts.filter(p => 
-                    (p.tg_id && p.tg_id.includes(query)) || 
-                    (p.name && p.name.toLowerCase().includes(query))
+                    (p.tg_id && p.tg_id.toLowerCase().includes(query)) || 
+                    (p.name && p.name.toLowerCase().includes(query)) ||
+                    (p.contact && p.contact.toLowerCase().includes(query))
                 );
             }
             renderList(posts || []);
@@ -119,12 +198,16 @@
 
             posts.forEach(item => {
                 const isTrust = (item.type === 'trust');
+                
+                // সুন্দর ভেরিফাইড টিক ডিজাইন
+                const verifiedIcon = `<span class="verified-badge"><i class="fas fa-certificate"></i><i class="fas fa-check"></i></span>`;
+                
                 const card = `
                     <div class="box-card" style="border-bottom-color: ${isTrust ? '#3390ec' : '#ff595a'}">
                         <div class="img-wrapper">
-                            ${item.image_url ? `<img src="${item.image_url}" onerror="this.src='https://ui-avatars.com/api/?name=${item.name}&background=random'">` : `<i class="fas ${isTrust ? 'fa-user-shield' : 'fa-skull-crossbones'}" style="color:${isTrust ? '#3390ec' : '#ff595a'}"></i>`}
+                            ${item.image_url ? `<img src="${item.image_url}" onerror="this.src='https://ui-avatars.com/api/?name=${item.name}&background=random'">` : `<i class="fas ${isTrust ? 'fa-user-shield' : 'fa-skull-crossbones'}" style="color:${isTrust ? '#3390ec' : '#ff595a'}; font-size:30px;"></i>`}
                         </div>
-                        <span class="name">${item.name} ${isTrust ? '<i class="fas fa-check-circle verified-tick"></i>' : ''}</span>
+                        <span class="name">${item.name} ${isTrust ? verifiedIcon : ''}</span>
                         <span class="id-text">ID: ${item.tg_id}</span>
                     </div>
                 `;
@@ -133,7 +216,6 @@
             });
         }
 
-        // প্রাথমিক কল
         loadSettings();
         fetchData();
         tg.expand();
