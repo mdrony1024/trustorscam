@@ -8,28 +8,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --tg-bg: #0e1621; --tg-secondary: #17212b; --tg-text: #ffffff; --primary: #3390ec; --scam-red: #ff595a; }
+        :root { --tg-bg: #0e1621; --tg-secondary: #17212b; --tg-text: #ffffff; --primary: #3390ec; }
         body { font-family: -apple-system, sans-serif; background: var(--tg-bg); color: var(--tg-text); margin: 0; padding: 15px; }
-        
-        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
-        .back-btn { background: none; border: none; color: var(--primary); font-size: 20px; cursor: pointer; }
-        
-        .form-group { margin-bottom: 20px; }
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .back-btn { background: none; border: none; color: var(--primary); font-size: 20px; }
+        .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 8px; font-size: 14px; color: #708499; font-weight: bold; }
-        
         input, textarea, select {
             width: 100%; padding: 12px; background: var(--tg-secondary); border: 1px solid rgba(255,255,255,0.1);
-            color: white; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none;
+            color: white; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; margin-bottom: 5px;
         }
-        
-        input:focus { border-color: var(--primary); }
-        
+        .dynamic-wrapper { display: flex; gap: 5px; margin-bottom: 5px; }
+        .add-more-btn {
+            background: none; border: 1px dashed var(--primary); color: var(--primary);
+            padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-bottom: 10px;
+        }
+        .remove-btn { background: #ff595a; border: none; color: white; border-radius: 5px; padding: 0 10px; cursor: pointer; }
         .submit-btn {
             width: 100%; padding: 15px; background: var(--primary); border: none; color: white;
-            border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;
+            border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer;
         }
-        
-        .success-msg { display: none; text-align: center; background: rgba(76, 175, 80, 0.1); color: #4caf50; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #4caf50; }
     </style>
 </head>
 <body>
@@ -39,14 +37,12 @@
         <h2 style="margin:0; font-size: 1.2rem;">Submit Report</h2>
     </div>
 
-    <div id="success" class="success-msg">রিপোর্টটি সফলভাবে জমা দেওয়া হয়েছে! এটি রিভিউ করার পর লাইভ হবে।</div>
-
     <form id="reportForm">
         <div class="form-group">
             <label>Report Type</label>
             <select id="type" required>
-                <option value="trust">Trusted Member</option>
                 <option value="scam">Scammer</option>
+                <option value="trust">Trusted Member</option>
             </select>
         </div>
 
@@ -56,13 +52,19 @@
         </div>
 
         <div class="form-group">
-            <label>Telegram ID (Username/Number)</label>
-            <input type="text" id="tg_id" placeholder="@username or ID" required>
+            <label>Telegram IDs / Usernames</label>
+            <div id="tg-wrapper">
+                <input type="text" class="tg-input" placeholder="@username or ID" required>
+            </div>
+            <button type="button" class="add-more-btn" onclick="addBox('tg-wrapper', 'tg-input', '@username or ID')">+ Add Another ID</button>
         </div>
 
         <div class="form-group">
-            <label>Contact Info (Optional)</label>
-            <input type="text" id="contact" placeholder="Phone, Wallet etc.">
+            <label>Payment Numbers / Wallet Addresses</label>
+            <div id="payment-wrapper">
+                <input type="text" class="payment-input" placeholder="Number or Wallet Address">
+            </div>
+            <button type="button" class="add-more-btn" onclick="addBox('payment-wrapper', 'payment-input', 'Number or Address')">+ Add Another Info</button>
         </div>
 
         <div class="form-group">
@@ -79,40 +81,50 @@
     </form>
 
     <script>
+        function addBox(wrapperId, className, placeholder) {
+            const wrapper = document.getElementById(wrapperId);
+            const div = document.createElement('div');
+            div.className = 'dynamic-wrapper';
+            div.innerHTML = `
+                <input type="text" class="${className}" placeholder="${placeholder}">
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">×</button>
+            `;
+            wrapper.appendChild(div);
+        }
+
         const SB_URL = "https://detmrsznwyalybdecqpn.supabase.co"; 
-        const SB_KEY = "sb_publishable_mI0X-fBPpat-EPdBAKedgQ_n3d1nr2f"; 
+        const SB_KEY = "YOUR_SUPABASE_KEY"; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        const form = document.getElementById('reportForm');
-        
-        form.onsubmit = async (e) => {
+        document.getElementById('reportForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('subBtn');
             btn.innerText = "Submitting...";
             btn.disabled = true;
 
+            // Collecting multiple values into strings
+            const tgIds = Array.from(document.querySelectorAll('.tg-input')).map(i => i.value).filter(v => v).join(', ');
+            const payments = Array.from(document.querySelectorAll('.payment-input')).map(i => i.value).filter(v => v).join(', ');
+
             const reportData = {
                 type: document.getElementById('type').value,
                 name: document.getElementById('name').value,
-                tg_id: document.getElementById('tg_id').value,
-                contact: document.getElementById('contact').value,
+                tg_id: tgIds,
+                contact: payments,
                 image_url: document.getElementById('image_url').value,
                 details: document.getElementById('details').value,
-                status: 'pending' // ডিফল্টভাবে পেন্ডিং থাকবে
+                status: 'pending'
             };
 
             const { error } = await _supabase.from('posts').insert([reportData]);
 
             if (error) {
-                alert("এরর: " + error.message);
+                alert("Error: " + error.message);
                 btn.innerText = "Submit Report";
                 btn.disabled = false;
             } else {
-                document.getElementById('success').style.display = 'block';
-                form.reset();
-                btn.innerText = "Submit Report";
-                btn.disabled = false;
-                setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+                alert("রিপোর্টটি সফলভাবে জমা দেওয়া হয়েছে!");
+                window.location.href = 'index.html';
             }
         };
     </script>
