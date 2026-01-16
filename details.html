@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Details - TrustOrScam</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #0e1621; color: white; font-family: sans-serif; padding: 20px; }
+        .back-btn { color: #3390ec; text-decoration: none; display: block; margin-bottom: 20px; }
+        .detail-card { background: #17212b; border-radius: 20px; padding: 25px; text-align: center; }
+        .detail-img { width: 150px; height: 150px; border-radius: 25px; object-fit: cover; margin-bottom: 15px; }
+        .info-row { text-align: left; margin-top: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 10px 0; }
+        .label { color: #708499; font-size: 13px; }
+        .value { font-size: 16px; font-weight: bold; display: block; margin-top: 4px; color: #fff; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+    <div id="detailsArea" class="detail-card">লোড হচ্ছে...</div>
+
+    <script>
+        const SB_URL = "https://detrmszrwyolybdecqpn.supabase.co"; 
+        const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        async function loadDetails() {
+            const postId = localStorage.getItem('view_post_id');
+            const { data: post } = await _supabase.from('posts').select('*').eq('id', postId).single();
+            
+            if(post) {
+                document.getElementById('detailsArea').innerHTML = `
+                    <img class="detail-img" src="${post.image_url || 'https://ui-avatars.com/api/?name='+post.name}">
+                    <h2 style="margin:10px 0;">${post.name}</h2>
+                    <div class="info-row"><span class="label">Telegram ID</span><span class="value">${post.tg_id}</span></div>
+                    <div class="info-row"><span class="label">Contact/Payment Info</span><span class="value">${post.contact || 'Not available'}</span></div>
+                    <div class="info-row"><span class="label">Details/Evidence</span><p style="color:#b1b1b1; line-height:1.5;">${post.details || 'No additional details.'}</p></div>
+                `;
+            }
+        }
+        loadDetails();
+    </script>
+</body>
+</html>
