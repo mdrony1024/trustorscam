@@ -19,83 +19,58 @@
             font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
             background: var(--tg-bg); 
             color: var(--tg-text); 
-            margin: 0; 
-            padding: 0; 
-            padding-bottom: 80px; /* নেভিগেশন মেনুর জন্য জায়গা */
+            margin: 0; padding: 0; padding-bottom: 80px; 
             overflow-x: hidden; 
         }
         
-        /* Header & Profile Icon */
-        .header { 
-            padding: 15px; 
-            background: var(--tg-secondary); 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
-        }
+        .header { padding: 15px; background: var(--tg-secondary); display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .user-avatar { width: 45px; height: 45px; background: #2481cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
         .info-btn { margin-left: auto; color: var(--trust-blue); font-size: 20px; cursor: pointer; }
 
-        /* নোটিশ স্টাইল */
         .notice-container { padding: 10px 15px; display: flex; flex-direction: column; gap: 8px; }
         .notice-top { background: rgba(51, 144, 236, 0.1); color: var(--trust-blue); padding: 12px; border-radius: 12px; font-size: 13px; border-left: 4px solid var(--trust-blue); line-height: 1.4; }
         .notice-alert { background: rgba(255, 89, 90, 0.1); color: var(--scam-red); padding: 12px; border-radius: 12px; font-size: 13px; border-left: 4px solid var(--scam-red); line-height: 1.4; }
 
-        /* সার্চ বক্স */
         .search-area { padding: 10px 15px; }
         .search-box { background: var(--tg-secondary); border-radius: 12px; padding: 14px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
         .search-box input { background: none; border: none; color: white; width: 100%; outline: none; margin-left: 10px; font-size: 16px; }
         
-        /* স্লাইডার কার্ড */
+        /* বক্স কার্ড - সাইজ বড় ও লম্বা করা হয়েছে */
         .slider-section { padding: 10px 0 25px 15px; }
         .slider-container { display: flex; overflow-x: auto; gap: 15px; padding-right: 15px; scrollbar-width: none; }
         .slider-container::-webkit-scrollbar { display: none; }
         
-        .box-card { min-width: 170px; max-width: 170px; background: var(--tg-secondary); border-radius: 22px; padding: 20px 15px; text-align: center; position: relative; border-bottom: 4px solid transparent; }
-        .img-wrapper { width: 80px; height: 80px; border-radius: 20px; margin: 0 auto 12px; overflow: hidden; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); }
+        .box-card { 
+            min-width: 200px; /* চওড়া বাড়ানো হয়েছে */
+            background: var(--tg-secondary); 
+            border-radius: 25px; 
+            padding: 25px 15px; 
+            text-align: center; 
+            position: relative; 
+            border-bottom: 5px solid transparent;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .box-card:active { transform: scale(0.95); }
+
+        /* ছবির সাইজ বড় করা হয়েছে */
+        .img-wrapper { 
+            width: 110px; height: 110px; 
+            border-radius: 22px; margin: 0 auto 15px; 
+            overflow: hidden; background: rgba(255,255,255,0.03); 
+            display: flex; align-items: center; justify-content: center; 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
         .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* নতুন ভেরিফাইড ব্যাজ */
-        .name { font-weight: bold; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-        .verified-badge {
-            color: #00a2ff;
-            font-size: 14px;
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .verified-badge .fa-check {
-            position: absolute;
-            font-size: 7px;
-            color: white;
-        }
+        .name { font-weight: bold; font-size: 17px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .verified-badge { color: #00a2ff; font-size: 16px; position: relative; display: inline-flex; align-items: center; justify-content: center; }
+        .verified-badge .fa-check { position: absolute; font-size: 8px; color: white; }
 
-        .id-text { font-size: 12px; color: #708499; display: block; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .id-text { font-size: 13px; color: #708499; display: block; margin-top: 8px; word-break: break-all; }
         
-        /* বটম নেভিগেশন মেনু */
-        .nav-menu {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--tg-secondary);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            z-index: 1000;
-        }
-        .nav-item {
-            color: #708499;
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 11px;
-            gap: 4px;
-        }
+        .nav-menu { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--tg-secondary); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.05); z-index: 1000; }
+        .nav-item { color: #708499; text-decoration: none; display: flex; flex-direction: column; align-items: center; font-size: 11px; gap: 4px; }
         .nav-item.active { color: var(--trust-blue); }
         .nav-item i { font-size: 20px; }
     </style>
@@ -112,72 +87,51 @@
     </div>
 
     <div class="notice-container">
-        <div class="notice-top" id="topNotice">লোড হচ্ছে...</div>
-        <div class="notice-alert" id="scamAlert">লোড হচ্ছে...</div>
+        <div class="notice-top" id="topNotice">স্বাগতম! লেনদেনের আগে আইডি চেক করুন।</div>
+        <div class="notice-alert" id="scamAlert">সতর্কতা: অপরিচিত কাউকে আগে টাকা দেবেন না।</div>
     </div>
 
     <div class="search-area">
         <div class="search-box">
             <i class="fas fa-search" style="color: #708499;"></i>
-            <input type="text" id="searchInput" placeholder="Search by ID, Name or Number..." onkeyup="fetchData()">
+            <input type="text" id="searchInput" placeholder="ID, Name or Number..." oninput="fetchData()">
         </div>
     </div>
 
     <div class="slider-section">
-        <div style="color:#708499; margin-bottom:12px; font-weight:bold; font-size:11px; letter-spacing: 1px; text-transform: uppercase;">Trusted Members</div>
+        <div style="color:#708499; margin-bottom:15px; font-weight:bold; font-size:11px; letter-spacing: 1px; text-transform: uppercase;">Trusted Members</div>
         <div class="slider-container" id="trustList"></div>
     </div>
 
     <div class="slider-section">
-        <div style="color:#ff595a; margin-bottom:12px; font-weight:bold; font-size:11px; letter-spacing: 1px; text-transform: uppercase;">Scammers</div>
+        <div style="color:#ff595a; margin-bottom:15px; font-weight:bold; font-size:11px; letter-spacing: 1px; text-transform: uppercase;">Scammers</div>
         <div class="slider-container" id="scamList"></div>
     </div>
 
     <div class="nav-menu">
-        <a href="index.html" class="nav-item active">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="report.html" class="nav-item">
-            <i class="fas fa-plus-circle"></i>
-            <span>Report</span>
-        </a>
-        <a href="history.html" class="nav-item">
-            <i class="fas fa-history"></i>
-            <span>History</span>
-        </a>
-        <a href="profile.html" class="nav-item">
-            <i class="fas fa-user-circle"></i>
-            <span>Profile</span>
-        </a>
+        <a href="index.html" class="nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="report.html" class="nav-item"><i class="fas fa-plus-circle"></i><span>Report</span></a>
+        <a href="history.html" class="nav-item"><i class="fas fa-history"></i><span>History</span></a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user-circle"></i><span>Profile</span></a>
     </div>
 
     <script>
-        const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
+        const SB_URL = "https://detrmszrwyolybdecqpn.supabase.co"; 
         const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         const tg = window.Telegram.WebApp;
-        const user = tg.initDataUnsafe.user;
-
-        if(user) {
-            document.getElementById('uName').innerText = user.first_name + (user.last_name ? " " + user.last_name : "");
-            document.getElementById('uId').innerText = "ID: " + user.id;
-            document.getElementById('uInit').innerText = user.first_name.charAt(0).toUpperCase();
-        }
-
-        async function loadSettings() {
-            const { data } = await _supabase.from('settings').select('*');
-            if (data) {
-                data.forEach(item => {
-                    if (item.id === 'top_notice') document.getElementById('topNotice').innerText = item.content;
-                    if (item.id === 'scam_alert') document.getElementById('scamAlert').innerText = item.content;
-                });
-            }
+        
+        // ইউজার ডাটা সেটআপ
+        if(tg.initDataUnsafe.user) {
+            const u = tg.initDataUnsafe.user;
+            document.getElementById('uName').innerText = u.first_name + (u.last_name ? " " + u.last_name : "");
+            document.getElementById('uId').innerText = "ID: " + u.id;
+            document.getElementById('uInit').innerText = u.first_name.charAt(0).toUpperCase();
         }
 
         async function fetchData() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
             let { data: posts } = await _supabase.from('posts').select('*').eq('status', 'approved');
 
             if (query && posts) {
@@ -190,22 +144,32 @@
             renderList(posts || []);
         }
 
+        // কার্ডে ক্লিক করলে ডিটেইলস দেখার ফাংশন
+        function viewDetails(id) {
+            // আইডিটি পরবর্তী পেজে পাঠানোর জন্য সেশন বা লোকাল স্টোরেজ ব্যবহার করা যায়
+            localStorage.setItem('view_post_id', id);
+            window.location.href = 'details.html';
+        }
+
         function renderList(posts) {
             const trustList = document.getElementById('trustList');
             const scamList = document.getElementById('scamList');
             trustList.innerHTML = '';
             scamList.innerHTML = '';
 
+            if(posts.length === 0) {
+                trustList.innerHTML = scamList.innerHTML = "<p style='color:#708499; font-size:12px;'>No results found.</p>";
+                return;
+            }
+
             posts.forEach(item => {
                 const isTrust = (item.type === 'trust');
-                
-                // সুন্দর ভেরিফাইড টিক ডিজাইন
                 const verifiedIcon = `<span class="verified-badge"><i class="fas fa-certificate"></i><i class="fas fa-check"></i></span>`;
                 
                 const card = `
-                    <div class="box-card" style="border-bottom-color: ${isTrust ? '#3390ec' : '#ff595a'}">
+                    <div class="box-card" style="border-bottom-color: ${isTrust ? '#3390ec' : '#ff595a'}" onclick="viewDetails('${item.id}')">
                         <div class="img-wrapper">
-                            ${item.image_url ? `<img src="${item.image_url}" onerror="this.src='https://ui-avatars.com/api/?name=${item.name}&background=random'">` : `<i class="fas ${isTrust ? 'fa-user-shield' : 'fa-skull-crossbones'}" style="color:${isTrust ? '#3390ec' : '#ff595a'}; font-size:30px;"></i>`}
+                            ${item.image_url ? `<img src="${item.image_url}" onerror="this.src='https://ui-avatars.com/api/?name=${item.name}&background=random'">` : `<i class="fas ${isTrust ? 'fa-user-shield' : 'fa-skull-crossbones'}" style="color:${isTrust ? '#3390ec' : '#ff595a'}; font-size:45px;"></i>`}
                         </div>
                         <span class="name">${item.name} ${isTrust ? verifiedIcon : ''}</span>
                         <span class="id-text">ID: ${item.tg_id}</span>
@@ -216,7 +180,7 @@
             });
         }
 
-        loadSettings();
+        // রিয়েলটাইম আপডেট পেতে সার্চ ইনপুট ইভেন্ট ঠিক করা হয়েছে
         fetchData();
         tg.expand();
     </script>
