@@ -3,48 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>TrustOrScam Pro Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0e1621; --card: #17212b; --text: #ffffff; --blue: #3390ec; --red: #ff595a; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
-        .login-container, .dashboard { max-width: 500px; margin: auto; background: var(--card); padding: 20px; border-radius: 15px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px; border: none; background: #0e1621; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--blue); border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .post-card { background: #0e1621; padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 5px solid orange; }
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-app { background: var(--blue); flex: 1; }
-        .btn-rej { background: var(--red); flex: 1; }
+        :root {
+            --primary: #3390ec;
+            --bg: #0e1621;
+            --card: #17212b;
+            --text: #ffffff;
+            --danger: #ef5350;
+            --success: #4caf50;
+            --warning: #ffa500;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--card);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar h2 { margin: 0; font-size: 1.1rem; color: var(--primary); }
+
+        /* Tabs */
+        .tab-bar {
+            display: flex;
+            background: var(--card);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: none;
+            color: #708499;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .container { padding: 15px; max-width: 600px; margin: auto; width: 100%; box-sizing: border-box; }
+
+        /* Notice Section */
+        .notice-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .notice-card h3 { margin-top: 0; font-size: 0.9rem; color: var(--primary); text-transform: uppercase; }
+        
+        textarea {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid #242f3d;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            resize: none;
+            margin: 10px 0;
+            font-family: inherit;
+        }
+
+        /* Report Cards */
+        .filters { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .filter-chip {
+            background: var(--card);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.1);
+            white-space: nowrap;
+        }
+        .filter-chip.active { background: var(--primary); border-color: var(--primary); }
+
+        .post-card {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            border-left: 5px solid var(--warning);
+        }
+        .post-card.approved { border-left-color: var(--success); }
+        .post-card.rejected { border-left-color: var(--danger); }
+
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 5px; text-transform: uppercase; font-weight: bold; }
+        
+        .action-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        select {
+            flex: 1;
+            background: var(--bg);
+            color: white;
+            border: 1px solid #242f3d;
+            padding: 10px;
+            border-radius: 8px;
+            outline: none;
+        }
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Login Box */
+        #loginBox {
+            background: var(--card);
+            margin: 100px auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: var(--bg);
+            border: 1px solid #242f3d;
+            color: white;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
 
-    <div id="loginBox" class="login-container">
-        <h3 style="text-align: center;">Moderator Login</h3>
-        <input type="email" id="email" placeholder="Gmail Address">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
+    <div id="loginBox">
+        <i class="fas fa-user-lock fa-3x" style="color: var(--primary); margin-bottom: 20px;"></i>
+        <h2 style="margin-bottom: 20px;">Admin Login</h2>
+        <input type="email" id="email" class="login-input" placeholder="Email Address">
+        <input type="password" id="password" class="login-input" placeholder="Password">
+        <button class="btn" style="width: 100%; margin-top: 10px;" onclick="login()">Login</button>
     </div>
 
-    <div id="adminPanel" style="display: none;" class="dashboard">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>Pending Reports</h3>
-            <button onclick="logout()" style="width: auto; padding: 5px 10px; background: #444;">Logout</button>
+    <div id="adminContent" style="display: none;">
+        <div class="navbar">
+            <h2><i class="fas fa-shield-alt"></i> Control Panel</h2>
+            <button onclick="logout()" style="background:none; border:none; color:var(--danger); font-size: 1.2rem;"><i class="fas fa-power-off"></i></button>
         </div>
-        <div id="list">Loading...</div>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('reports', this)">Reports</button>
+            <button class="tab-btn" onclick="switchTab('notices', this)">Notices</button>
+        </div>
+
+        <div class="container">
+            <div id="reportsTab">
+                <div class="filters">
+                    <div class="filter-chip active" onclick="loadPosts('pending', this)">Pending</div>
+                    <div class="filter-chip" onclick="loadPosts('approved', this)">Approved</div>
+                    <div class="filter-chip" onclick="loadPosts('rejected', this)">Rejected</div>
+                </div>
+                <div id="reportList"><p style="text-align:center; color:#708499;">লোড হচ্ছে...</p></div>
+            </div>
+
+            <div id="noticesTab" style="display: none;">
+                <div class="notice-card">
+                    <h3><i class="fas fa-bullhorn"></i> Top Notice (Blue)</h3>
+                    <textarea id="top_notice_text" rows="3"></textarea>
+                    <button class="btn" onclick="updateNotice('top_notice')">Update Top Notice</button>
+                </div>
+
+                <div class="notice-card">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Scam Alert (Red)</h3>
+                    <textarea id="scam_alert_text" rows="3"></textarea>
+                    <button class="btn" style="background: var(--danger);" onclick="updateNotice('scam_alert')">Update Alert Notice</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co";
-        const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F";
+        const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
+        const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
+        // --- Authentication ---
         async function login() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) alert("Error: " + error.message);
-            else checkUser();
+            if (error) alert("এরর: " + error.message); else checkUser();
         }
 
         async function logout() { await supabaseClient.auth.signOut(); location.reload(); }
@@ -53,33 +229,97 @@
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (user) {
                 document.getElementById('loginBox').style.display = 'none';
-                document.getElementById('adminPanel').style.display = 'block';
-                loadPending();
+                document.getElementById('adminContent').style.display = 'block';
+                loadPosts('pending');
+                loadNotices();
             }
         }
 
-        async function loadPending() {
-            const listDiv = document.getElementById('list');
-            let { data: posts } = await supabaseClient.from('posts').select('*').eq('status', 'pending');
-            
-            listDiv.innerHTML = posts?.length ? '' : 'No pending reports.';
-            posts?.forEach(p => {
-                listDiv.innerHTML += `
-                    <div class="post-card">
-                        <strong>${p.name}</strong> (${p.type})<br>
-                        <small>TG ID: ${p.tg_id}</small><br>
-                        <p>${p.details}</p>
-                        <div class="btn-group">
-                            <button class="btn-app" onclick="updateStatus(${p.id}, 'approved')">Approve</button>
-                            <button class="btn-rej" onclick="updateStatus(${p.id}, 'rejected')">Reject</button>
-                        </div>
-                    </div>`;
-            });
+        // --- Navigation ---
+        function switchTab(tab, btn) {
+            document.getElementById('reportsTab').style.display = tab === 'reports' ? 'block' : 'none';
+            document.getElementById('noticesTab').style.display = tab === 'notices' ? 'block' : 'none';
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
         }
 
-        async function updateStatus(id, status) {
-            await supabaseClient.from('posts').update({ status }).eq('id', id);
-            loadPending();
+        // --- Notice Management ---
+        async function loadNotices() {
+            const { data } = await supabaseClient.from('settings').select('*');
+            if(data) {
+                data.forEach(n => {
+                    const el = document.getElementById(n.id + '_text');
+                    if(el) el.value = n.content;
+                });
+            }
+        }
+
+        async function updateNotice(id) {
+            const val = document.getElementById(id + '_text').value;
+            const { error } = await supabaseClient.from('settings').update({ content: val }).eq('id', id);
+            if(error) alert("Error: " + error.message); else alert("নোটিশ আপডেট হয়েছে!");
+        }
+
+        // --- Report Management ---
+        async function loadPosts(status, btn) {
+            if(btn) {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            const list = document.getElementById('reportList');
+            list.innerHTML = '<p style="text-align:center; color:#708499;">লোড হচ্ছে...</p>';
+
+            const { data: posts, error } = await supabaseClient
+                .from('posts')
+                .select('*')
+                .eq('status', status)
+                .order('created_at', { ascending: false });
+
+            if(posts && posts.length > 0) {
+                list.innerHTML = '';
+                posts.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = `post-card ${p.status}`;
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <span class="badge" style="background:${p.type==='trust'?'rgba(76,175,80,0.2)':'rgba(239,83,80,0.2)'}; color:${p.type==='trust'? 'var(--success)':'var(--danger)'}">${p.type}</span>
+                            <small style="color:#708499">${new Date(p.created_at).toLocaleDateString()}</small>
+                        </div>
+                        <div style="font-weight:bold; font-size:1.1rem;">${p.name}</div>
+                        <div style="font-size:0.9rem; color:#b1b1b1; margin-top:5px;">TG ID: ${p.tg_id} | Contact: ${p.contact || 'N/A'}</div>
+                        <div style="background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-top:10px; font-size:0.9rem;">${p.details || 'No details'}</div>
+                        
+                        <div class="action-area">
+                            <select id="act-${p.id}">
+                                <option value="">Action...</option>
+                                <option value="approved">Approve</option>
+                                <option value="rejected">Reject</option>
+                                <option value="pending">Move to Pending</option>
+                                <option value="delete">Delete Permanently</option>
+                            </select>
+                            <button class="btn" onclick="takeAction(${p.id})">GO</button>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+            } else {
+                list.innerHTML = '<p style="text-align:center; color:#708499; margin-top:20px;">কোনো ডাটা পাওয়া যায়নি।</p>';
+            }
+        }
+
+        async function takeAction(id) {
+            const act = document.getElementById('act-'+id).value;
+            if(!act) return;
+
+            if(act === 'delete') {
+                if(confirm("আপনি কি নিশ্চিতভাবে এটি ডিলিট করতে চান?")) {
+                    await supabaseClient.from('posts').delete().eq('id', id);
+                }
+            } else {
+                await supabaseClient.from('posts').update({ status: act }).eq('id', id);
+            }
+            loadPosts(document.querySelector('.filter-chip.active').innerText.toLowerCase());
         }
 
         checkUser();
