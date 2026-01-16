@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Report - TrustOrScam</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --tg-bg: #0e1621; --tg-secondary: #17212b; --tg-text: #ffffff; --primary: #3390ec; --scam-red: #ff595a; }
+        body { font-family: -apple-system, sans-serif; background: var(--tg-bg); color: var(--tg-text); margin: 0; padding: 15px; }
+        
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .back-btn { background: none; border: none; color: var(--primary); font-size: 20px; cursor: pointer; }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #708499; font-weight: bold; }
+        
+        input, textarea, select {
+            width: 100%; padding: 12px; background: var(--tg-secondary); border: 1px solid rgba(255,255,255,0.1);
+            color: white; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none;
+        }
+        
+        input:focus { border-color: var(--primary); }
+        
+        .submit-btn {
+            width: 100%; padding: 15px; background: var(--primary); border: none; color: white;
+            border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+        
+        .success-msg { display: none; text-align: center; background: rgba(76, 175, 80, 0.1); color: #4caf50; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #4caf50; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i></button>
+        <h2 style="margin:0; font-size: 1.2rem;">Submit Report</h2>
+    </div>
+
+    <div id="success" class="success-msg">রিপোর্টটি সফলভাবে জমা দেওয়া হয়েছে! এটি রিভিউ করার পর লাইভ হবে।</div>
+
+    <form id="reportForm">
+        <div class="form-group">
+            <label>Report Type</label>
+            <select id="type" required>
+                <option value="trust">Trusted Member</option>
+                <option value="scam">Scammer</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Full Name / Title</label>
+            <input type="text" id="name" placeholder="Enter name" required>
+        </div>
+
+        <div class="form-group">
+            <label>Telegram ID (Username/Number)</label>
+            <input type="text" id="tg_id" placeholder="@username or ID" required>
+        </div>
+
+        <div class="form-group">
+            <label>Contact Info (Optional)</label>
+            <input type="text" id="contact" placeholder="Phone, Wallet etc.">
+        </div>
+
+        <div class="form-group">
+            <label>Image URL (Optional)</label>
+            <input type="url" id="image_url" placeholder="Paste image link here">
+        </div>
+
+        <div class="form-group">
+            <label>Details / Evidence</label>
+            <textarea id="details" rows="4" placeholder="Describe your experience..."></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn" id="subBtn">Submit Report</button>
+    </form>
+
+    <script>
+        const SB_URL = "https://detmrsznwyalybdecqpn.supabase.co"; 
+        const SB_KEY = "sb_publishable_mI0X-fBPpat-EPdBAKedgQ_n3d1nr2f"; 
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        const form = document.getElementById('reportForm');
+        
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('subBtn');
+            btn.innerText = "Submitting...";
+            btn.disabled = true;
+
+            const reportData = {
+                type: document.getElementById('type').value,
+                name: document.getElementById('name').value,
+                tg_id: document.getElementById('tg_id').value,
+                contact: document.getElementById('contact').value,
+                image_url: document.getElementById('image_url').value,
+                details: document.getElementById('details').value,
+                status: 'pending' // ডিফল্টভাবে পেন্ডিং থাকবে
+            };
+
+            const { error } = await _supabase.from('posts').insert([reportData]);
+
+            if (error) {
+                alert("এরর: " + error.message);
+                btn.innerText = "Submit Report";
+                btn.disabled = false;
+            } else {
+                document.getElementById('success').style.display = 'block';
+                form.reset();
+                btn.innerText = "Submit Report";
+                btn.disabled = false;
+                setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+            }
+        };
+    </script>
+</body>
+</html>
