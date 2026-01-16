@@ -10,24 +10,32 @@
     <style>
         :root { --tg-bg: #0e1621; --tg-secondary: #17212b; --tg-text: #ffffff; --trust-blue: #3390ec; --scam-red: #ff595a; }
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--tg-bg); color: var(--tg-text); margin: 0; padding: 0; overflow-x: hidden; }
+        
         .header { padding: 15px; background: var(--tg-secondary); display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .user-avatar { width: 45px; height: 45px; background: #2481cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
-        .notice-container { padding: 10px 15px; }
+        
+        /* নোটিশ স্টাইল */
+        .notice-container { padding: 10px 15px; display: flex; flex-direction: column; gap: 8px; }
         .notice-top { background: rgba(51, 144, 236, 0.1); color: var(--trust-blue); padding: 12px; border-radius: 12px; font-size: 13px; border-left: 4px solid var(--trust-blue); line-height: 1.4; }
+        .notice-alert { background: rgba(255, 89, 90, 0.1); color: var(--scam-red); padding: 12px; border-radius: 12px; font-size: 13px; border-left: 4px solid var(--scam-red); line-height: 1.4; }
+
         .search-area { padding: 10px 15px; }
         .search-box { background: var(--tg-secondary); border-radius: 12px; padding: 14px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
         .search-box input { background: none; border: none; color: white; width: 100%; outline: none; margin-left: 10px; font-size: 16px; }
+        
         .slider-section { padding: 10px 0 25px 15px; }
-        .slider-container { display: flex; overflow-x: auto; gap: 15px; padding-right: 15px; scrollbar-width: none; -ms-overflow-style: none; }
+        .slider-container { display: flex; overflow-x: auto; gap: 15px; padding-right: 15px; scrollbar-width: none; }
         .slider-container::-webkit-scrollbar { display: none; }
+        
         .box-card { min-width: 170px; max-width: 170px; background: var(--tg-secondary); border-radius: 22px; padding: 20px 15px; text-align: center; position: relative; border-bottom: 4px solid transparent; }
         .img-wrapper { width: 80px; height: 80px; border-radius: 20px; margin: 0 auto 12px; overflow: hidden; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); }
         .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
         .img-wrapper i { font-size: 30px; }
+        
         .name { font-weight: bold; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .verified-tick { color: #3390ec; font-size: 14px; }
         .id-text { font-size: 12px; color: #708499; display: block; margin-top: 5px; }
-        .delete-btn { position: absolute; top: 10px; right: 10px; background: rgba(255, 89, 90, 0.2); color: var(--scam-red); border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: none; }
+        
         .fab { position: fixed; bottom: 25px; right: 20px; background: #2481cc; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: none; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 100; }
     </style>
 </head>
@@ -42,9 +50,8 @@
     </div>
 
     <div class="notice-container">
-        <div class="notice-top" id="topNotice">
-            <i class="fas fa-shield-alt"></i> লেনদেনের আগে অবশ্যই আইডি সার্চ করে যাচাই করে নিন। কোনো স্ক্যামের শিকার হলে রিপোর্ট করুন।
-        </div>
+        <div class="notice-top" id="topNotice">লোড হচ্ছে...</div>
+        <div class="notice-alert" id="scamAlert">লোড হচ্ছে...</div>
     </div>
 
     <div class="search-area">
@@ -55,78 +62,65 @@
     </div>
 
     <div class="slider-section">
-        <div style="color:#708499; margin-bottom:12px; font-weight:bold; font-size:12px; letter-spacing: 1px;">TRUSTED MEMBERS</div>
+        <div style="color:#708499; margin-bottom:12px; font-weight:bold; font-size:11px; letter-spacing: 1px; text-transform: uppercase;">Trusted Members</div>
         <div class="slider-container" id="trustList"></div>
     </div>
 
     <div class="slider-section">
-        <div style="color:#ff595a; margin-bottom:12px; font-weight:bold; font-size:12px; letter-spacing: 1px;">SCAMMERS</div>
+        <div style="color:#ff595a; margin-bottom:12px; font-weight:bold; font-size:11px; letter-spacing: 1px; text-transform: uppercase;">Scammers</div>
         <div class="slider-container" id="scamList"></div>
     </div>
 
     <button class="fab" onclick="window.location.href='report.html'"><i class="fas fa-plus"></i></button>
 
     <script>
-        // --- Supabase Config ---
         const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
         const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         const tg = window.Telegram.WebApp;
         const user = tg.initDataUnsafe.user;
-        const admins = [6659714853]; // এখানে আপনার আসল টেলিগ্রাম আইডি দিন
 
-        // ইউজার ইনফো সেট করা
         if(user) {
             document.getElementById('uName').innerText = user.first_name + (user.last_name ? " " + user.last_name : "");
             document.getElementById('uId').innerText = "ID: " + user.id;
             document.getElementById('uInit').innerText = user.first_name.charAt(0).toUpperCase();
         }
 
-        // ডাটাবেজ থেকে ডাটা আনা
+        // --- নোটিশ লোড করার ফাংশন ---
+        async function loadSettings() {
+            const { data, error } = await _supabase.from('settings').select('*');
+            if (data) {
+                data.forEach(item => {
+                    if (item.id === 'top_notice') document.getElementById('topNotice').innerText = item.content;
+                    if (item.id === 'scam_alert') document.getElementById('scamAlert').innerText = item.content;
+                });
+            }
+        }
+
         async function fetchData() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            
-            // শুধু approved পোস্টগুলো আনবে
-            let { data: posts, error } = await _supabase
-                .from('posts')
-                .select('*')
-                .eq('status', 'approved');
+            let { data: posts, error } = await _supabase.from('posts').select('*').eq('status', 'approved');
 
-            if (error) {
-                console.error("Error fetching data:", error);
-                return;
-            }
-
-            // সার্চ ফিল্টারিং (null চেক সহ)
-            if(query && posts) {
+            if (query && posts) {
                 posts = posts.filter(p => 
                     (p.tg_id && p.tg_id.includes(query)) || 
-                    (p.contact && p.contact.includes(query)) || 
                     (p.name && p.name.toLowerCase().includes(query))
                 );
             }
-
             renderList(posts || []);
         }
 
-        // লিস্ট শো করা
         function renderList(posts) {
             const trustList = document.getElementById('trustList');
             const scamList = document.getElementById('scamList');
             trustList.innerHTML = '';
             scamList.innerHTML = '';
 
-            if (posts.length === 0) {
-                trustList.innerHTML = '<p style="color:#708499; font-size:13px;">No results found.</p>';
-                return;
-            }
-
             posts.forEach(item => {
                 const isTrust = (item.type === 'trust');
                 const card = `
                     <div class="box-card" style="border-bottom-color: ${isTrust ? '#3390ec' : '#ff595a'}">
-                        ${admins.includes(user?.id) ? `<button class="delete-btn" style="display:block" onclick="deletePost(${item.id})"><i class="fas fa-trash"></i></button>` : ''}
                         <div class="img-wrapper">
                             ${item.image_url ? `<img src="${item.image_url}" onerror="this.src='https://ui-avatars.com/api/?name=${item.name}&background=random'">` : `<i class="fas ${isTrust ? 'fa-user-shield' : 'fa-skull-crossbones'}" style="color:${isTrust ? '#3390ec' : '#ff595a'}"></i>`}
                         </div>
@@ -134,22 +128,13 @@
                         <span class="id-text">ID: ${item.tg_id}</span>
                     </div>
                 `;
-                
                 if(isTrust) trustList.innerHTML += card;
                 else scamList.innerHTML += card;
             });
         }
 
-        // ডিলিট ফাংশন (শুধুমাত্র অ্যাডমিনদের জন্য)
-        async function deletePost(id) {
-            if(confirm("Are you sure you want to delete this?")) {
-                const { error } = await _supabase.from('posts').delete().eq('id', id);
-                if(!error) fetchData();
-                else alert("Error deleting post");
-            }
-        }
-
         // প্রাথমিক কল
+        loadSettings();
         fetchData();
         tg.expand();
     </script>
