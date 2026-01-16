@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --bg: #0e1621; --card: #17212b; --text: #ffffff; --blue: #3390ec; --red: #ff595a; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+        .login-container, .dashboard { max-width: 500px; margin: auto; background: var(--card); padding: 20px; border-radius: 15px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px; border: none; background: #0e1621; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--blue); border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .post-card { background: #0e1621; padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 5px solid orange; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-app { background: var(--blue); flex: 1; }
+        .btn-rej { background: var(--red); flex: 1; }
+    </style>
+</head>
+<body>
+
+    <div id="loginBox" class="login-container">
+        <h3 style="text-align: center;">Moderator Login</h3>
+        <input type="email" id="email" placeholder="Gmail Address">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <div id="adminPanel" style="display: none;" class="dashboard">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>Pending Reports</h3>
+            <button onclick="logout()" style="width: auto; padding: 5px 10px; background: #444;">Logout</button>
+        </div>
+        <div id="list">Loading...</div>
+    </div>
+
+    <script>
+        const SB_URL = "https://detmrsznwyalybdecqpn.supabase.co";
+        const SB_KEY = "sb_publishable_mI0X-fBPpat-EPdBAKedgQ_n3d1nr2f";
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) alert("Error: " + error.message);
+            else checkUser();
+        }
+
+        async function logout() { await supabaseClient.auth.signOut(); location.reload(); }
+
+        async function checkUser() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadPending();
+            }
+        }
+
+        async function loadPending() {
+            const listDiv = document.getElementById('list');
+            let { data: posts } = await supabaseClient.from('posts').select('*').eq('status', 'pending');
+            
+            listDiv.innerHTML = posts?.length ? '' : 'No pending reports.';
+            posts?.forEach(p => {
+                listDiv.innerHTML += `
+                    <div class="post-card">
+                        <strong>${p.name}</strong> (${p.type})<br>
+                        <small>TG ID: ${p.tg_id}</small><br>
+                        <p>${p.details}</p>
+                        <div class="btn-group">
+                            <button class="btn-app" onclick="updateStatus(${p.id}, 'approved')">Approve</button>
+                            <button class="btn-rej" onclick="updateStatus(${p.id}, 'rejected')">Reject</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        async function updateStatus(id, status) {
+            await supabaseClient.from('posts').update({ status }).eq('id', id);
+            loadPending();
+        }
+
+        checkUser();
+    </script>
+</body>
+</html>
