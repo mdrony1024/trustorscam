@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Panel - TrustOrScam</title>
+    <title>TrustOrScam Pro Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -11,38 +11,66 @@
         body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding-bottom: 30px; }
         
         .navbar { background: var(--card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 1000; }
-        .tab-bar { display: flex; background: var(--card); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #708499; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .tab-bar { display: flex; background: var(--card); border-bottom: 1px solid rgba(255,255,255,0.05); overflow-x: auto; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #708499; font-weight: bold; cursor: pointer; white-space: nowrap; }
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
         
         .container { padding: 15px; max-width: 600px; margin: auto; }
-        .notice-card { background: var(--card); padding: 18px; border-radius: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .notice-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--primary); }
         
-        input, textarea, select { width: 100%; background: var(--bg); border: 1px solid #242f3d; color: white; padding: 12px; border-radius: 10px; margin-top: 8px; box-sizing: border-box; outline: none; }
-        .btn { border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn-primary { background: var(--primary); color: white; width: 100%; }
-        
-        /* স্ট্যাটাস বাটন স্পেশাল */
-        .status-box { display: flex; justify-content: space-between; align-items: center; }
-        #reportToggleBtn { min-width: 100px; margin-top: 0; }
+        /* ফিল্টার চিপস */
+        .filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .filter-chip { background: #242f3d; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; color: #708499; }
+        .filter-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .post-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--warning); }
+        /* রিপোর্ট কার্ড */
+        .post-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 4px solid var(--warning); cursor: pointer; transition: 0.2s; }
+        .post-card:active { transform: scale(0.98); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        
+        /* মোডাল/ডিটেইলস স্টাইল */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: var(--card); padding: 20px; border-radius: 15px; width: 100%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; }
+        
+        textarea, input { width: 100%; background: var(--bg); border: 1px solid #242f3d; color: white; padding: 12px; border-radius: 10px; margin-top: 8px; box-sizing: border-box; outline: none; }
+        .btn { border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
+        .btn-blue { background: var(--primary); width: 100%; }
+        
         #loginBox { background: var(--card); margin: 100px auto; padding: 30px; border-radius: 20px; max-width: 350px; text-align: center; }
     </style>
 </head>
 <body>
 
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <h3 id="mTitle" style="margin-top:0; color:var(--primary);">Report Details</h3>
+            <div id="mBody" style="font-size: 0.95rem; line-height: 1.5; color: #b1b1b1;"></div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <label>Change Status:</label>
+                <select id="mAction" style="width:100%; background:var(--bg); color:white; padding:10px; border-radius:8px; margin-top:5px;">
+                    <option value="">Choose action...</option>
+                    <option value="approved">Approve</option>
+                    <option value="rejected">Reject</option>
+                    <option value="pending">Pending</option>
+                    <option value="delete">Delete Permanently</option>
+                </select>
+                <button class="btn btn-blue" onclick="applyModalAction()">Apply & Close</button>
+            </div>
+            <button onclick="closeModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#708499; font-size:1.5rem;">&times;</button>
+        </div>
+    </div>
+
     <div id="loginBox">
-        <i class="fas fa-shield-alt fa-3x" style="color: var(--primary); margin-bottom: 15px;"></i>
+        <i class="fas fa-user-shield fa-3x" style="color: var(--primary); margin-bottom: 15px;"></i>
         <h2>Admin Login</h2>
         <input type="email" id="email" placeholder="Email">
         <input type="password" id="password" placeholder="Password">
-        <button class="btn btn-primary" onclick="login()">Login</button>
+        <button class="btn btn-blue" onclick="login()">Login</button>
     </div>
 
     <div id="adminContent" style="display: none;">
         <div class="navbar">
-            <h2 style="margin:0; font-size: 1.2rem;">Control Panel</h2>
+            <h2 style="margin:0;">Control Panel</h2>
             <button onclick="logout()" style="background:none; border:none; color:var(--danger); font-size: 1.2rem;"><i class="fas fa-power-off"></i></button>
         </div>
 
@@ -54,41 +82,48 @@
 
         <div class="container">
             <div id="reportsTab">
-                <input type="text" id="adminSearch" placeholder="Search by ID, Name..." oninput="loadPosts()" style="margin-bottom: 15px;">
+                <input type="text" id="adminSearch" placeholder="Search by ID, Name or Info..." oninput="loadPosts()" style="margin-bottom: 15px;">
+                
+                <div class="filters">
+                    <div class="filter-chip active" onclick="filterData('pending', this)">Pending</div>
+                    <div class="filter-chip" onclick="filterData('approved', this)">Approved</div>
+                    <div class="filter-chip" onclick="filterData('rejected', this)">Rejected</div>
+                </div>
+
                 <div id="reportList"></div>
             </div>
 
             <div id="systemTab" style="display: none;">
-                <div class="notice-card status-box">
+                <div class="notice-card" style="display:flex; justify-content:space-between; align-items:center;">
                     <span>User Reporting Status</span>
-                    <button id="reportToggleBtn" class="btn" onclick="toggleReportSystem()">Checking...</button>
+                    <button id="reportToggleBtn" class="btn" style="margin-top:0; min-width:80px;" onclick="toggleStatus()">Wait...</button>
                 </div>
 
                 <div class="notice-card">
-                    <h3 style="margin:0; font-size: 0.9rem; color: var(--primary);">TOP NOTICE (BLUE)</h3>
+                    <h4 style="margin:0; color:var(--primary);">Top Notice (Blue)</h4>
                     <textarea id="top_notice_text" rows="2"></textarea>
-                    <button class="btn btn-primary" onclick="updateNotice('top_notice')">Update Notice</button>
+                    <button class="btn btn-blue" onclick="updateN('top_notice')">Update Notice</button>
                 </div>
 
                 <div class="notice-card" style="border-left-color: var(--danger);">
-                    <h3 style="margin:0; font-size: 0.9rem; color: var(--danger);">SCAM ALERT (RED)</h3>
+                    <h4 style="margin:0; color:var(--danger);">Scam Alert (Red)</h4>
                     <textarea id="scam_alert_text" rows="2"></textarea>
-                    <button class="btn" style="background: var(--danger); color: white; width: 100%;" onclick="updateNotice('scam_alert')">Update Alert</button>
+                    <button class="btn" style="background:var(--danger); width:100%;" onclick="updateN('scam_alert')">Update Alert</button>
                 </div>
 
                 <div class="notice-card" style="border-left-color: var(--warning);">
-                    <h3 style="margin:0; font-size: 0.9rem; color: var(--warning);">BROADCAST TO ALL</h3>
-                    <textarea id="broadcast_msg" placeholder="Write message or link..."></textarea>
-                    <button class="btn" style="background: var(--warning); color: white; width: 100%;" onclick="sendBroadcast()">Send Notification</button>
+                    <h4 style="margin:0; color:var(--warning);">Broadcast to Telegram Bot</h4>
+                    <textarea id="bot_msg" placeholder="Write message to send via Bot..."></textarea>
+                    <button class="btn" style="background:var(--warning); width:100%;" onclick="sendToBot()">Send to Telegram</button>
                 </div>
             </div>
 
             <div id="modsTab" style="display: none;">
                 <div class="notice-card" style="border-left-color: var(--success);">
-                    <h3 style="margin:0; font-size: 0.9rem; color: var(--success);">ADD NEW MODERATOR</h3>
-                    <input type="email" id="newModEmail" placeholder="Moderator Email">
-                    <input type="password" id="newModPassword" placeholder="Set Password">
-                    <button class="btn" style="background: var(--success); color: white; width: 100%;" onclick="addNewModerator()">Create Mod Account</button>
+                    <h4 style="margin:0; color:var(--success);">Add Moderator</h4>
+                    <input type="email" id="mEmail" placeholder="Mod Email">
+                    <input type="password" id="mPass" placeholder="Mod Password">
+                    <button class="btn" style="background:var(--success); width:100%;" onclick="addMod()">Create Account</button>
                 </div>
             </div>
         </div>
@@ -97,19 +132,21 @@
     <script>
         const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
         const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+        const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        // --- Auth Functions ---
+        let currentFilter = 'pending';
+        let selectedReportId = null;
+
+        // --- AUTH ---
         async function login() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            const { error } = await _sb.auth.signInWithPassword({ email: e, password: p });
             if (error) alert(error.message); else checkUser();
         }
-        async function logout() { await supabaseClient.auth.signOut(); location.reload(); }
-
+        async function logout() { await _sb.auth.signOut(); location.reload(); }
         async function checkUser() {
-            const { data: { user } } = await supabaseClient.auth.getUser();
+            const { data: { user } } = await _sb.auth.getUser();
             if (user) {
                 document.getElementById('loginBox').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
@@ -117,98 +154,118 @@
             }
         }
 
-        function switchTab(tab, btn) {
-            document.getElementById('reportsTab').style.display = tab === 'reports' ? 'block' : 'none';
-            document.getElementById('systemTab').style.display = tab === 'system' ? 'block' : 'none';
-            document.getElementById('modsTab').style.display = tab === 'mods' ? 'block' : 'none';
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        function switchTab(t, b) {
+            document.getElementById('reportsTab').style.display = t === 'reports' ? 'block' : 'none';
+            document.getElementById('systemTab').style.display = t === 'system' ? 'block' : 'none';
+            document.getElementById('modsTab').style.display = t === 'mods' ? 'block' : 'none';
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            b.classList.add('active');
         }
 
-        // --- System Settings & Reporting Status ---
-        async function loadSettings() {
-            const { data, error } = await supabaseClient.from('settings').select('*');
-            if (error) { console.error(error); return; }
-
-            data.forEach(s => {
-                if (s.id === 'report_status') {
-                    const btn = document.getElementById('reportToggleBtn');
-                    const isOn = s.content === 'on';
-                    btn.innerText = isOn ? 'ON' : 'OFF';
-                    btn.style.background = isOn ? 'var(--success)' : 'var(--danger)';
-                }
-                const field = document.getElementById(s.id + '_text');
-                if (field) field.value = s.content;
-            });
+        // --- REPORTS & MODAL ---
+        function filterData(s, b) {
+            currentFilter = s;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            b.classList.add('active');
+            loadPosts();
         }
 
-        async function toggleReportSystem() {
-            const btn = document.getElementById('reportToggleBtn');
-            const currentStatus = btn.innerText === 'ON' ? 'off' : 'on';
-            btn.innerText = "Wait...";
-            
-            const { error } = await supabaseClient.from('settings').update({ content: currentStatus }).eq('id', 'report_status');
-            if (error) alert("Error: " + error.message);
-            else loadSettings();
-        }
-
-        async function updateNotice(id) {
-            const val = document.getElementById(id + '_text').value;
-            const { error } = await supabaseClient.from('settings').update({ content: val }).eq('id', id);
-            alert(error ? "Error: " + error.message : "নোটিশ আপডেট হয়েছে!");
-        }
-
-        // --- Moderator Management ---
-        async function addNewModerator() {
-            const email = document.getElementById('newModEmail').value;
-            const password = document.getElementById('newModPassword').value;
-            const { error } = await supabaseClient.auth.signUp({ email, password });
-            if (error) alert(error.message);
-            else {
-                alert("মডারেটর অ্যাড হয়েছে! (ইমেইল কনফার্মেশন অফ থাকলে সরাসরি লগইন করতে পারবে)");
-                document.getElementById('newModEmail').value = '';
-                document.getElementById('newModPassword').value = '';
-            }
-        }
-
-        // --- Report Listing & Search ---
         async function loadPosts() {
-            const query = document.getElementById('adminSearch').value.toLowerCase();
-            let { data: posts } = await supabaseClient.from('posts').select('*').order('created_at', { ascending: false });
+            const q = document.getElementById('adminSearch').value.toLowerCase();
+            const { data } = await _sb.from('posts').select('*').eq('status', currentFilter).order('created_at', {ascending: false});
             
-            if (query && posts) {
-                posts = posts.filter(p => p.tg_id.toLowerCase().includes(query) || p.name.toLowerCase().includes(query));
-            }
-
-            const list = document.getElementById('reportList');
+            let list = document.getElementById('reportList');
             list.innerHTML = '';
-            posts?.forEach(p => {
+            
+            const filtered = data?.filter(p => p.tg_id.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)) || [];
+            
+            filtered.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'post-card';
+                card.style.borderLeftColor = p.type === 'trust' ? 'var(--success)' : 'var(--danger)';
                 card.innerHTML = `
-                    <div style="font-weight:bold;">${p.name}</div>
-                    <div style="font-size:0.8rem; color:#888;">ID: ${p.tg_id} | Status: ${p.status}</div>
-                    <select id="act-${p.id}" style="width: auto; padding: 5px; margin-right: 5px;">
-                        <option value="">Action...</option>
-                        <option value="approved">Approve</option>
-                        <option value="rejected">Reject</option>
-                        <option value="delete">Delete</option>
-                    </select>
-                    <button class="btn btn-primary" style="width:auto; padding:5px 15px;" onclick="takeAction('${p.id}')">Apply</button>
+                    <div class="card-header">
+                        <strong>${p.name}</strong>
+                        <span style="font-size:0.7rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">${p.type.toUpperCase()}</span>
+                    </div>
+                    <div style="font-size:0.85rem; color:#708499;">ID: ${p.tg_id}</div>
+                    <div style="font-size:0.8rem; color:var(--primary); margin-top:5px;">Click to view details & action</div>
                 `;
+                card.onclick = () => openModal(p);
                 list.appendChild(card);
             });
         }
 
-        async function takeAction(id) {
-            const act = document.getElementById('act-'+id).value;
+        function openModal(p) {
+            selectedReportId = p.id;
+            document.getElementById('mTitle').innerText = p.name;
+            document.getElementById('mBody').innerHTML = `
+                <p><b>Type:</b> ${p.type}</p>
+                <p><b>Telegram IDs:</b> ${p.tg_id}</p>
+                <p><b>Contact Info:</b> ${p.contact || 'N/A'}</p>
+                <p><b>Details:</b><br>${p.details || 'No evidence provided'}</p>
+                ${p.image_url ? `<img src="${p.image_url}" style="width:100%; border-radius:10px; margin-top:10px;">` : ''}
+            `;
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+
+        async function applyModalAction() {
+            const act = document.getElementById('mAction').value;
             if(!act) return;
             if(act === 'delete') {
-                if(confirm("Delete Permanently?")) await supabaseClient.from('posts').delete().eq('id', id);
+                if(confirm("Confirm Delete?")) await _sb.from('posts').delete().eq('id', selectedReportId);
             } else {
-                await supabaseClient.from('posts').update({ status: act }).eq('id', id);
+                await _sb.from('posts').update({ status: act }).eq('id', selectedReportId);
             }
-            loadPosts();
+            closeModal(); loadPosts();
+        }
+
+        // --- SYSTEM SETTINGS ---
+        async function loadSettings() {
+            const { data } = await _sb.from('settings').select('*');
+            data?.forEach(s => {
+                if(s.id === 'report_status') {
+                    const b = document.getElementById('reportToggleBtn');
+                    b.innerText = s.content === 'on' ? 'ON' : 'OFF';
+                    b.style.background = s.content === 'on' ? 'var(--success)' : 'var(--danger)';
+                }
+                const f = document.getElementById(s.id + '_text');
+                if(f) f.value = s.content;
+            });
+        }
+
+        async function toggleStatus() {
+            const b = document.getElementById('reportToggleBtn');
+            const next = b.innerText === 'ON' ? 'off' : 'on';
+            await _sb.from('settings').update({ content: next }).eq('id', 'report_status');
+            loadSettings();
+        }
+
+        async function updateN(id) {
+            const v = document.getElementById(id+'_text').value;
+            await _sb.from('settings').update({ content: v }).eq('id', id);
+            alert("Updated!");
+        }
+
+        // --- TELEGRAM BOT MESSAGE ---
+        async function sendToBot() {
+            const msg = document.getElementById('bot_msg').value;
+            const BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"; // আপনার বটের টোকেন দিন
+            const CHAT_ID = "YOUR_CHAT_ID_HERE";   // আপনার আইডি বা গ্রুপ আইডি দিন
+
+            if(!msg) return;
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`;
+            
+            fetch(url).then(() => alert("Message Sent to Telegram Bot!"));
+        }
+
+        async function addMod() {
+            const e = document.getElementById('mEmail').value;
+            const p = document.getElementById('mPass').value;
+            const { error } = await _sb.auth.signUp({ email: e, password: p });
+            if(error) alert(error.message); else alert("Moderator Created!");
         }
 
         checkUser();
