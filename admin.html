@@ -18,25 +18,24 @@
         .container { padding: 15px; max-width: 600px; margin: auto; }
         .notice-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--primary); }
         
-        /* ফিল্টার চিপস */
         .filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .filter-chip { background: #242f3d; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; color: #708499; }
         .filter-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* রিপোর্ট কার্ড */
         .post-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 4px solid var(--warning); cursor: pointer; transition: 0.2s; }
         .post-card:active { transform: scale(0.98); }
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         
-        /* মোডাল/ডিটেইলস স্টাইল */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .modal-content { background: var(--card); padding: 20px; border-radius: 15px; width: 100%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 15px; width: 100%; max-width: 500px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        textarea, input { width: 100%; background: var(--bg); border: 1px solid #242f3d; color: white; padding: 12px; border-radius: 10px; margin-top: 8px; box-sizing: border-box; outline: none; }
+        textarea, input { width: 100%; background: var(--bg); border: 1px solid #242f3d; color: white; padding: 12px; border-radius: 10px; margin-top: 8px; box-sizing: border-box; outline: none; font-size: 14px; }
         .btn { border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
         .btn-blue { background: var(--primary); width: 100%; }
         
         #loginBox { background: var(--card); margin: 100px auto; padding: 30px; border-radius: 20px; max-width: 350px; text-align: center; }
+        
+        .close-btn { background: #242f3d; color: white; border: none; padding: 10px; width: 100%; border-radius: 10px; margin-top: 15px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -45,18 +44,19 @@
         <div class="modal-content">
             <h3 id="mTitle" style="margin-top:0; color:var(--primary);">Report Details</h3>
             <div id="mBody" style="font-size: 0.95rem; line-height: 1.5; color: #b1b1b1;"></div>
-            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <label>Change Status:</label>
-                <select id="mAction" style="width:100%; background:var(--bg); color:white; padding:10px; border-radius:8px; margin-top:5px;">
-                    <option value="">Choose action...</option>
+            
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <label style="font-size: 13px; color: #708499;">Change Status:</label>
+                <select id="mAction" style="width:100%; background:var(--bg); color:white; padding:12px; border-radius:8px; margin-top:5px; border:1px solid #242f3d;">
+                    <option value="">-- Choose action --</option>
                     <option value="approved">Approve</option>
                     <option value="rejected">Reject</option>
                     <option value="pending">Pending</option>
                     <option value="delete">Delete Permanently</option>
                 </select>
-                <button class="btn btn-blue" onclick="applyModalAction()">Apply & Close</button>
+                <button class="btn btn-blue" onclick="applyModalAction()">Apply & Update</button>
+                <button class="close-btn" onclick="closeModal()">Close Window</button>
             </div>
-            <button onclick="closeModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#708499; font-size:1.5rem;">&times;</button>
         </div>
     </div>
 
@@ -70,7 +70,7 @@
 
     <div id="adminContent" style="display: none;">
         <div class="navbar">
-            <h2 style="margin:0;">Control Panel</h2>
+            <h2 style="margin:0; font-size: 1.2rem;">Control Panel</h2>
             <button onclick="logout()" style="background:none; border:none; color:var(--danger); font-size: 1.2rem;"><i class="fas fa-power-off"></i></button>
         </div>
 
@@ -82,48 +82,46 @@
 
         <div class="container">
             <div id="reportsTab">
-                <input type="text" id="adminSearch" placeholder="Search by ID, Name or Info..." oninput="loadPosts()" style="margin-bottom: 15px;">
-                
+                <input type="text" id="adminSearch" placeholder="Search by ID, Name..." oninput="loadPosts()" style="margin-bottom: 15px;">
                 <div class="filters">
                     <div class="filter-chip active" onclick="filterData('pending', this)">Pending</div>
                     <div class="filter-chip" onclick="filterData('approved', this)">Approved</div>
                     <div class="filter-chip" onclick="filterData('rejected', this)">Rejected</div>
                 </div>
-
                 <div id="reportList"></div>
             </div>
 
             <div id="systemTab" style="display: none;">
                 <div class="notice-card" style="display:flex; justify-content:space-between; align-items:center;">
-                    <span>User Reporting Status</span>
+                    <span>User Reporting System</span>
                     <button id="reportToggleBtn" class="btn" style="margin-top:0; min-width:80px;" onclick="toggleStatus()">Wait...</button>
                 </div>
 
                 <div class="notice-card">
                     <h4 style="margin:0; color:var(--primary);">Top Notice (Blue)</h4>
-                    <textarea id="top_notice_text" rows="2"></textarea>
-                    <button class="btn btn-blue" onclick="updateN('top_notice')">Update Notice</button>
+                    <textarea id="top_notice_text" rows="2" placeholder="Enter blue notice text..."></textarea>
+                    <button class="btn btn-blue" onclick="saveNotice('top_notice')">Update Top Notice</button>
                 </div>
 
                 <div class="notice-card" style="border-left-color: var(--danger);">
                     <h4 style="margin:0; color:var(--danger);">Scam Alert (Red)</h4>
-                    <textarea id="scam_alert_text" rows="2"></textarea>
-                    <button class="btn" style="background:var(--danger); width:100%;" onclick="updateN('scam_alert')">Update Alert</button>
+                    <textarea id="scam_alert_text" rows="2" placeholder="Enter red alert text..."></textarea>
+                    <button class="btn" style="background:var(--danger); width:100%;" onclick="saveNotice('scam_alert')">Update Scam Alert</button>
                 </div>
 
                 <div class="notice-card" style="border-left-color: var(--warning);">
-                    <h4 style="margin:0; color:var(--warning);">Broadcast to Telegram Bot</h4>
-                    <textarea id="bot_msg" placeholder="Write message to send via Bot..."></textarea>
-                    <button class="btn" style="background:var(--warning); width:100%;" onclick="sendToBot()">Send to Telegram</button>
+                    <h4 style="margin:0; color:var(--warning);">Broadcast to Telegram</h4>
+                    <textarea id="bot_msg" placeholder="Write message for bot broadcast..."></textarea>
+                    <button class="btn" style="background:var(--warning); width:100%;" onclick="sendToBot()">Send Message</button>
                 </div>
             </div>
 
             <div id="modsTab" style="display: none;">
                 <div class="notice-card" style="border-left-color: var(--success);">
-                    <h4 style="margin:0; color:var(--success);">Add Moderator</h4>
-                    <input type="email" id="mEmail" placeholder="Mod Email">
-                    <input type="password" id="mPass" placeholder="Mod Password">
-                    <button class="btn" style="background:var(--success); width:100%;" onclick="addMod()">Create Account</button>
+                    <h4 style="margin:0; color:var(--success);">Create Moderator</h4>
+                    <input type="email" id="mEmail" placeholder="Email Address">
+                    <input type="password" id="mPass" placeholder="Password">
+                    <button class="btn" style="background:var(--success); width:100%;" onclick="addMod()">Register Mod Account</button>
                 </div>
             </div>
         </div>
@@ -142,7 +140,7 @@
             const e = document.getElementById('email').value;
             const p = document.getElementById('password').value;
             const { error } = await _sb.auth.signInWithPassword({ email: e, password: p });
-            if (error) alert(error.message); else checkUser();
+            if (error) alert("Login Failed: " + error.message); else checkUser();
         }
         async function logout() { await _sb.auth.signOut(); location.reload(); }
         async function checkUser() {
@@ -162,7 +160,7 @@
             b.classList.add('active');
         }
 
-        // --- REPORTS & MODAL ---
+        // --- REPORTS ---
         function filterData(s, b) {
             currentFilter = s;
             document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
@@ -172,39 +170,39 @@
 
         async function loadPosts() {
             const q = document.getElementById('adminSearch').value.toLowerCase();
-            const { data } = await _sb.from('posts').select('*').eq('status', currentFilter).order('created_at', {ascending: false});
+            const { data, error } = await _sb.from('posts').select('*').eq('status', currentFilter).order('created_at', {ascending: false});
             
             let list = document.getElementById('reportList');
             list.innerHTML = '';
             
-            const filtered = data?.filter(p => p.tg_id.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)) || [];
-            
-            filtered.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'post-card';
-                card.style.borderLeftColor = p.type === 'trust' ? 'var(--success)' : 'var(--danger)';
-                card.innerHTML = `
-                    <div class="card-header">
-                        <strong>${p.name}</strong>
-                        <span style="font-size:0.7rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">${p.type.toUpperCase()}</span>
-                    </div>
-                    <div style="font-size:0.85rem; color:#708499;">ID: ${p.tg_id}</div>
-                    <div style="font-size:0.8rem; color:var(--primary); margin-top:5px;">Click to view details & action</div>
-                `;
-                card.onclick = () => openModal(p);
-                list.appendChild(card);
-            });
+            if(data) {
+                const filtered = data.filter(p => p.tg_id.toLowerCase().includes(q) || p.name.toLowerCase().includes(q));
+                filtered.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
+                    card.style.borderLeftColor = p.type === 'trust' ? 'var(--success)' : 'var(--danger)';
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <strong>${p.name}</strong>
+                            <span style="font-size:0.7rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">${p.type.toUpperCase()}</span>
+                        </div>
+                        <div style="font-size:0.85rem; color:#708499;">ID: ${p.tg_id}</div>
+                        <div style="font-size:0.75rem; color:var(--primary); margin-top:8px;"><i class="fas fa-eye"></i> Click to view details</div>
+                    `;
+                    card.onclick = () => openModal(p);
+                    list.appendChild(card);
+                });
+            }
         }
 
         function openModal(p) {
             selectedReportId = p.id;
             document.getElementById('mTitle').innerText = p.name;
             document.getElementById('mBody').innerHTML = `
-                <p><b>Type:</b> ${p.type}</p>
-                <p><b>Telegram IDs:</b> ${p.tg_id}</p>
-                <p><b>Contact Info:</b> ${p.contact || 'N/A'}</p>
-                <p><b>Details:</b><br>${p.details || 'No evidence provided'}</p>
-                ${p.image_url ? `<img src="${p.image_url}" style="width:100%; border-radius:10px; margin-top:10px;">` : ''}
+                <div style="margin-bottom:10px;"><b>Category:</b> ${p.type.toUpperCase()}</div>
+                <div style="margin-bottom:10px;"><b>Telegram IDs:</b> ${p.tg_id}</div>
+                <div style="margin-bottom:10px;"><b>Evidence/Details:</b><br>${p.details || 'No additional info'}</div>
+                ${p.image_url ? `<img src="${p.image_url}" style="width:100%; border-radius:10px; margin-top:10px; border:1px solid #242f3d;">` : ''}
             `;
             document.getElementById('detailModal').style.display = 'flex';
         }
@@ -213,16 +211,20 @@
 
         async function applyModalAction() {
             const act = document.getElementById('mAction').value;
-            if(!act) return;
+            if(!act) return alert("Select an action first");
+            
             if(act === 'delete') {
-                if(confirm("Confirm Delete?")) await _sb.from('posts').delete().eq('id', selectedReportId);
+                if(confirm("Are you sure you want to delete this report permanently?")) {
+                    await _sb.from('posts').delete().eq('id', selectedReportId);
+                }
             } else {
                 await _sb.from('posts').update({ status: act }).eq('id', selectedReportId);
+                alert("Status updated to: " + act);
             }
             closeModal(); loadPosts();
         }
 
-        // --- SYSTEM SETTINGS ---
+        // --- SETTINGS (FIXED NOTICE) ---
         async function loadSettings() {
             const { data } = await _sb.from('settings').select('*');
             data?.forEach(s => {
@@ -231,41 +233,49 @@
                     b.innerText = s.content === 'on' ? 'ON' : 'OFF';
                     b.style.background = s.content === 'on' ? 'var(--success)' : 'var(--danger)';
                 }
-                const f = document.getElementById(s.id + '_text');
-                if(f) f.value = s.content;
+                const inputField = document.getElementById(s.id + '_text');
+                if(inputField) inputField.value = s.content;
             });
         }
 
         async function toggleStatus() {
             const b = document.getElementById('reportToggleBtn');
-            const next = b.innerText === 'ON' ? 'off' : 'on';
-            await _sb.from('settings').update({ content: next }).eq('id', 'report_status');
+            const nextVal = b.innerText === 'ON' ? 'off' : 'on';
+            b.innerText = "Updating...";
+            const { error } = await _sb.from('settings').update({ content: nextVal }).eq('id', 'report_status');
+            if(error) alert(error.message);
             loadSettings();
         }
 
-        async function updateN(id) {
-            const v = document.getElementById(id+'_text').value;
-            await _sb.from('settings').update({ content: v }).eq('id', id);
-            alert("Updated!");
+        // নোটিশ সেভ করার সঠিক ফাংশন
+        async function saveNotice(noticeId) {
+            const textVal = document.getElementById(noticeId + '_text').value;
+            const { error } = await _sb.from('settings').update({ content: textVal }).eq('id', noticeId);
+            if(error) {
+                alert("Update Failed: " + error.message);
+            } else {
+                alert("Settings Updated Successfully!");
+            }
         }
 
-        // --- TELEGRAM BOT MESSAGE ---
         async function sendToBot() {
             const msg = document.getElementById('bot_msg').value;
-            const BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"; // আপনার বটের টোকেন দিন
-            const CHAT_ID = "YOUR_CHAT_ID_HERE";   // আপনার আইডি বা গ্রুপ আইডি দিন
-
-            if(!msg) return;
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`;
+            const BOT_TOKEN = "YOUR_BOT_TOKEN"; 
+            const CHAT_ID = "YOUR_CHAT_ID"; 
+            if(!msg) return alert("Message is empty");
             
-            fetch(url).then(() => alert("Message Sent to Telegram Bot!"));
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&parse_mode=HTML&text=${encodeURIComponent("📢 <b>Admin Broadcast:</b>\n\n"+msg)}`;
+            fetch(url).then(() => {
+                alert("Broadcast sent successfully!");
+                document.getElementById('bot_msg').value = '';
+            });
         }
 
         async function addMod() {
             const e = document.getElementById('mEmail').value;
             const p = document.getElementById('mPass').value;
             const { error } = await _sb.auth.signUp({ email: e, password: p });
-            if(error) alert(error.message); else alert("Moderator Created!");
+            if(error) alert(error.message); else alert("Moderator access created for: " + e);
         }
 
         checkUser();
