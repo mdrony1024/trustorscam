@@ -11,73 +11,52 @@
             --primary: #3390ec; --bg: #0e1621; --card: #17212b; --text: #ffffff;
             --danger: #ef5350; --success: #4caf50; --warning: #ffa500;
         }
-
-        body {
-            font-family: -apple-system, sans-serif; background-color: var(--bg);
-            color: var(--text); margin: 0; padding: 0; padding-bottom: 30px;
-        }
-
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
         .navbar { background: var(--card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 1000; }
-        .navbar h2 { margin: 0; font-size: 1.1rem; color: var(--primary); }
-
         .tab-bar { display: flex; background: var(--card); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #708499; font-weight: bold; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #708499; font-weight: bold; cursor: pointer; }
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
-
         .container { padding: 15px; max-width: 600px; margin: auto; }
-
-        /* সার্চ বক্স স্টাইল */
-        .search-area { margin-bottom: 15px; }
-        .search-box { width: 100%; padding: 12px; background: var(--card); border: 1px solid #242f3d; color: white; border-radius: 10px; outline: none; box-sizing: border-box; }
-
-        .notice-card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        textarea { width: 100%; background: var(--bg); border: 1px solid #242f3d; color: white; padding: 12px; border-radius: 10px; resize: none; margin: 10px 0; box-sizing: border-box; }
-
-        .filters { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .filter-chip { background: var(--card); padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
-        .filter-chip.active { background: var(--primary); border-color: var(--primary); }
+        
+        /* সার্চ ও নোটিশ স্টাইল */
+        .search-box { width: 100%; padding: 12px; background: var(--card); border: 1px solid #242f3d; color: white; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
+        .notice-card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
+        textarea { width: 100%; background: var(--bg); border: 1px solid #242f3d; color: white; padding: 10px; border-radius: 8px; resize: none; margin: 10px 0; box-sizing: border-box; }
+        
+        .filters { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; }
+        .filter-chip { background: var(--card); padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+        .filter-chip.active { background: var(--primary); }
 
         .post-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--warning); }
-        .post-card.approved { border-left-color: var(--success); }
-        .post-card.rejected { border-left-color: var(--danger); }
-
-        .action-area { display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); }
-        select { flex: 1; background: var(--bg); color: white; border: 1px solid #242f3d; padding: 10px; border-radius: 8px; }
-        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        #loginBox { background: var(--card); margin: 100px auto; padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; }
-        .login-input { width: 100%; padding: 12px; margin: 10px 0; background: var(--bg); border: 1px solid #242f3d; color: white; border-radius: 10px; box-sizing: border-box; }
+        .action-area { display: flex; gap: 10px; margin-top: 10px; }
+        .btn { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         
-        /* অন/অফ বাটন */
-        .status-toggle { display: flex; justify-content: space-between; align-items: center; background: #1a242f; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        #loginBox { background: var(--card); margin: 100px auto; padding: 30px; border-radius: 20px; max-width: 350px; text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="loginBox">
-        <i class="fas fa-user-lock fa-3x" style="color: var(--primary); margin-bottom: 20px;"></i>
         <h2>Admin Login</h2>
-        <input type="email" id="email" class="login-input" placeholder="Email Address">
-        <input type="password" id="password" class="login-input" placeholder="Password">
+        <input type="email" id="email" class="search-box" placeholder="Email">
+        <input type="password" id="password" class="search-box" placeholder="Password">
         <button class="btn" style="width: 100%;" onclick="login()">Login</button>
     </div>
 
     <div id="adminContent" style="display: none;">
         <div class="navbar">
-            <h2><i class="fas fa-shield-alt"></i> Control Panel</h2>
-            <button onclick="logout()" style="background:none; border:none; color:var(--danger); font-size: 1.2rem;"><i class="fas fa-power-off"></i></button>
+            <h2>Control Panel</h2>
+            <button onclick="logout()" style="background:none; border:none; color:var(--danger);"><i class="fas fa-power-off"></i></button>
         </div>
 
         <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab('reports', this)">Reports</button>
-            <button class="tab-btn" onclick="switchTab('system', this)">System Control</button>
+            <button class="tab-btn" onclick="switchTab('system', this)">System & Notices</button>
         </div>
 
         <div class="container">
             <div id="reportsTab">
-                <div class="search-area">
-                    <input type="text" id="adminSearch" class="search-box" placeholder="Search ID, Name or Contact..." oninput="loadPosts()">
-                </div>
+                <input type="text" id="adminSearch" class="search-box" placeholder="Search ID, Name or Contact..." oninput="loadPosts()">
                 <div class="filters">
                     <div class="filter-chip active" onclick="filterStatus('pending', this)">Pending</div>
                     <div class="filter-chip" onclick="filterStatus('approved', this)">Approved</div>
@@ -87,21 +66,27 @@
             </div>
 
             <div id="systemTab" style="display: none;">
-                <div class="status-toggle">
-                    <span>User Report System</span>
+                <div class="notice-card" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>User Reporting Status</span>
                     <button id="reportToggleBtn" class="btn" onclick="toggleReportSystem()">Checking...</button>
                 </div>
 
                 <div class="notice-card">
-                    <h3><i class="fas fa-bullhorn"></i> Top Notice</h3>
+                    <h3>Top Notice (Blue)</h3>
                     <textarea id="top_notice_text" rows="2"></textarea>
-                    <button class="btn" onclick="updateNotice('top_notice')">Update</button>
+                    <button class="btn" onclick="updateNotice('top_notice')">Update Top Notice</button>
                 </div>
 
-                <div class="notice-card">
-                    <h3><i class="fas fa-bell"></i> Broadcast Notification</h3>
-                    <textarea id="broadcast_msg" placeholder="লিঙ্ক বা মেসেজ লিখুন যা সবার কাছে যাবে..." rows="3"></textarea>
-                    <button class="btn" style="background: var(--warning);" onclick="sendBroadcast()">Send to All Users</button>
+                <div class="notice-card" style="border-left-color: var(--danger);">
+                    <h3>Scam Alert (Red)</h3>
+                    <textarea id="scam_alert_text" rows="2"></textarea>
+                    <button class="btn" style="background: var(--danger);" onclick="updateNotice('scam_alert')">Update Scam Alert</button>
+                </div>
+
+                <div class="notice-card" style="border-left-color: var(--warning);">
+                    <h3>Broadcast to Bot</h3>
+                    <textarea id="broadcast_msg" placeholder="মেসেজ বা লিঙ্ক যা সবার কাছে যাবে..."></textarea>
+                    <button class="btn" style="background: var(--warning);" onclick="sendBroadcast()">Send Notification</button>
                 </div>
             </div>
         </div>
@@ -111,15 +96,13 @@
         const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
         const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-
         let currentFilter = 'pending';
 
-        // --- Auth ---
         async function login() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) alert("এরর: " + error.message); else checkUser();
+            if (error) alert(error.message); else checkUser();
         }
         async function logout() { await supabaseClient.auth.signOut(); location.reload(); }
 
@@ -128,8 +111,7 @@
             if (user) {
                 document.getElementById('loginBox').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
-                loadPosts();
-                loadSettings();
+                loadPosts(); loadSettings();
             }
         }
 
@@ -140,98 +122,71 @@
             btn.classList.add('active');
         }
 
-        // --- Reports ---
-        function filterStatus(status, btn) {
-            currentFilter = status;
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            loadPosts();
-        }
-
         async function loadPosts() {
             const query = document.getElementById('adminSearch').value.toLowerCase();
             const list = document.getElementById('reportList');
-            list.innerHTML = '<p style="text-align:center; color:#708499;">লোড হচ্ছে...</p>';
-
             let { data: posts } = await supabaseClient.from('posts').select('*').eq('status', currentFilter).order('created_at', { ascending: false });
-
+            
             if (query && posts) {
-                posts = posts.filter(p => 
-                    (p.tg_id && p.tg_id.toLowerCase().includes(query)) || 
-                    (p.name && p.name.toLowerCase().includes(query)) ||
-                    (p.contact && p.contact.toLowerCase().includes(query))
-                );
+                posts = posts.filter(p => p.tg_id.toLowerCase().includes(query) || p.name.toLowerCase().includes(query));
             }
 
-            if(posts && posts.length > 0) {
-                list.innerHTML = '';
-                posts.forEach(p => {
-                    const card = document.createElement('div');
-                    card.className = `post-card ${p.status}`;
-                    card.innerHTML = `
-                        <div style="font-weight:bold;">${p.name} <small style="float:right; color:#708499;">${p.type}</small></div>
-                        <div style="font-size:0.85rem; margin-top:5px; color:#b1b1b1;">ID: ${p.tg_id}</div>
-                        <div style="font-size:0.85rem; color:#b1b1b1;">Contact: ${p.contact || 'None'}</div>
-                        <div class="action-area">
-                            <select id="act-${p.id}">
-                                <option value="">Action...</option>
-                                <option value="approved">Approve</option>
-                                <option value="rejected">Reject</option>
-                                <option value="delete">Delete Permanently</option>
-                            </select>
-                            <button class="btn" onclick="takeAction('${p.id}')">GO</button>
-                        </div>
-                    `;
-                    list.appendChild(card);
-                });
-            } else { list.innerHTML = '<p style="text-align:center; color:#708499;">কোনো তথ্য নেই।</p>'; }
+            list.innerHTML = '';
+            posts?.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                card.innerHTML = `
+                    <b>${p.name}</b> <br> ID: ${p.tg_id} <br>
+                    <div class="action-area">
+                        <select id="act-${p.id}" style="padding:5px; border-radius:5px;">
+                            <option value="">Action...</option>
+                            <option value="approved">Approve</option>
+                            <option value="rejected">Reject</option>
+                            <option value="delete">Delete</option>
+                        </select>
+                        <button class="btn" onclick="takeAction('${p.id}')">Apply</button>
+                    </div>`;
+                list.appendChild(card);
+            });
         }
 
         async function takeAction(id) {
             const act = document.getElementById('act-'+id).value;
             if(!act) return;
             if(act === 'delete') {
-                if(confirm("নিশ্চিত ডিলিট?")) await supabaseClient.from('posts').delete().eq('id', id);
+                if(confirm("Delete?")) await supabaseClient.from('posts').delete().eq('id', id);
             } else {
                 await supabaseClient.from('posts').update({ status: act }).eq('id', id);
             }
             loadPosts();
         }
 
-        // --- System Controls ---
         async function loadSettings() {
             const { data } = await supabaseClient.from('settings').select('*');
-            if(data) {
-                data.forEach(s => {
-                    if(s.id === 'report_status') {
-                        const btn = document.getElementById('reportToggleBtn');
-                        btn.innerText = s.content === 'on' ? 'ON' : 'OFF';
-                        btn.style.background = s.content === 'on' ? 'var(--success)' : 'var(--danger)';
-                    }
-                    if(s.id === 'top_notice') document.getElementById('top_notice_text').value = s.content;
-                });
-            }
+            data?.forEach(s => {
+                if(s.id === 'report_status') {
+                    const btn = document.getElementById('reportToggleBtn');
+                    btn.innerText = s.content === 'on' ? 'ON' : 'OFF';
+                    btn.style.background = s.content === 'on' ? 'var(--success)' : 'var(--danger)';
+                }
+                if(document.getElementById(s.id + '_text')) document.getElementById(s.id + '_text').value = s.content;
+            });
         }
 
         async function toggleReportSystem() {
             const btn = document.getElementById('reportToggleBtn');
-            const newStatus = btn.innerText === 'ON' ? 'off' : 'on';
-            await supabaseClient.from('settings').update({ content: newStatus }).eq('id', 'report_status');
+            const status = btn.innerText === 'ON' ? 'off' : 'on';
+            await supabaseClient.from('settings').update({ content: status }).eq('id', 'report_status');
             loadSettings();
         }
 
         async function updateNotice(id) {
             const val = document.getElementById(id + '_text').value;
             await supabaseClient.from('settings').update({ content: val }).eq('id', id);
-            alert("আপডেট সফল!");
+            alert("Updated!");
         }
 
-        async function sendBroadcast() {
-            const msg = document.getElementById('broadcast_msg').value;
-            if(!msg) return;
-            alert("ব্রডকাস্ট রিকোয়েস্ট পাঠানো হয়েছে! (বট এপিআই কানেক্ট থাকতে হবে)");
-            // এখানে আপনি আপনার বটের API তে রিকোয়েস্ট পাঠাবেন
-        }
+        function filterStatus(s, b) { currentFilter = s; document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); b.classList.add('active'); loadPosts(); }
 
         checkUser();
     </script>
