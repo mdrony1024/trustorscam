@@ -70,8 +70,11 @@
             </div>
 
             <div class="form-group">
-                <label>Image URL (Optional)</label>
-                <input type="url" id="image_url" placeholder="Paste image link here">
+                <label>Screenshot Links (Evidence)</label>
+                <div id="screenshot-wrapper">
+                    <input type="url" class="ss-input" placeholder="Paste image/screenshot link">
+                </div>
+                <button type="button" class="add-more-btn" onclick="addBox('screenshot-wrapper', 'ss-input', 'Paste image link')">+ Add More Screenshot</button>
             </div>
 
             <div class="form-group">
@@ -85,8 +88,8 @@
 
     <div id="closed-msg">
         <i class="fas fa-clock fa-3x" style="color: #ffa500; margin-bottom: 15px;"></i>
-        <h3>রিপোর্ট সিস্টেম সাময়িকভাবে বন্ধ আছে।</h3>
-        <p style="color: #708499;">অ্যাডমিন খুব শীঘ্রই এটি পুনরায় চালু করবেন।</p>
+        <h3>The report system is temporarily down.</h3>
+        <p style="color: #708499;">The admin will reactivate it soon.</p>
         <button class="submit-btn" onclick="window.location.href='index.html'">Go back</button>
     </div>
 
@@ -98,27 +101,22 @@
         const tg = window.Telegram.WebApp;
         const user = tg.initDataUnsafe.user;
 
-        // ১. সিস্টেম অন/অফ চেক এবং অ্যাডমিন চেক
         async function checkSystemStatus() {
             const { data: statusData } = await _supabase.from('settings').select('*').eq('id', 'report_status').single();
-            const { data: admins } = await _supabase.from('moderators').select('tg_id'); // মডারেটরদের জন্য আলাদা টেবিল থাকা ভালো
-            
-            const isAdmin = admins?.some(a => a.tg_id === user?.id.toString());
+            const adminId = 5761590224; // আপনার এডমিন আইডি
 
-            if (statusData && statusData.content === 'off' && !isAdmin) {
+            if (statusData && statusData.content === 'off' && user?.id !== adminId) {
                 document.getElementById('report-container').style.display = 'none';
                 document.getElementById('closed-msg').style.display = 'block';
             }
         }
 
-        // ২. ট্রাস্টেড আইডি জমা দেওয়ার প্রিভিলেজ চেক
         function checkAdminPrivilege() {
             const type = document.getElementById('type').value;
-            // এখানে আপনি চাইলে আপনার টেলিগ্রাম আইডি দিয়ে সরাসরি চেক করতে পারেন
-            const adminId = 5761590224; // আপনার নিজের আইডি এখানে দিতে পারেন
+            const adminId = 5761590224; 
             
             if (type === 'trust' && user?.id !== adminId) {
-                alert("শুধুমাত্র অ্যাডমিন ও মডারেটররা 'Trusted' আইডি অ্যাড করতে পারবেন।");
+                alert("Only admins and moderators can add 'Trusted' IDs.");
                 document.getElementById('type').value = 'scam';
             }
         }
@@ -134,17 +132,16 @@
             wrapper.appendChild(div);
         }
 
-        // ৩. মডারেটরদের নোটিফিকেশন পাঠানো
         async function sendNotification(data) {
             const BOT_TOKEN = "8276016320:AAH82uoHR6FlWBmyBQTDjnWW7DSpCYt-3fk";
             const CHAT_ID = "-1003486386077";
-            const text = `🚨 *নতুন রিপোর্ট জমা হয়েছে!*\n\n📝 নাম: ${data.name}\n🆔 ID: ${data.tg_id}\n⚠️ ধরন: ${data.type}\n👤 রিপোর্টার: ${user?.first_name || 'Unknown'}`;
+            const text = `🚨 <b>নতুন রিপোর্ট জমা হয়েছে!</b>\n\n👤 <b>রিপোর্টার:</b> ${user?.first_name || 'অজানা'}\n📝 <b>নাম:</b> ${data.name}\n🆔 <b>ID:</b> ${data.tg_id}\n⚠️ <b>ধরণ:</b> ${data.type.toUpperCase()}\n🖼 <b>এভিডেন্স লিংক:</b>\n${data.image_url || 'নাই'}`;
             
             try {
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'Markdown' })
+                    body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'HTML' })
                 });
             } catch(e) { console.error("Notification failed", e); }
         }
@@ -157,15 +154,17 @@
 
             const tgIds = Array.from(document.querySelectorAll('.tg-input')).map(i => i.value).filter(v => v).join(', ');
             const payments = Array.from(document.querySelectorAll('.payment-input')).map(i => i.value).filter(v => v).join(', ');
+            // স্ক্রিনশট লিংকগুলো সংগ্রহ করা
+            const ssLinks = Array.from(document.querySelectorAll('.ss-input')).map(i => i.value).filter(v => v).join('\n');
 
             const reportData = {
                 type: document.getElementById('type').value,
                 name: document.getElementById('name').value,
                 tg_id: tgIds,
                 contact: payments,
-                image_url: document.getElementById('image_url').value,
+                image_url: ssLinks, // এখানে সব লিংক সেভ হবে
                 details: document.getElementById('details').value,
-                reporter_id: user?.id.toString(),
+                reporter_id: user?.id ? user.id.toString() : 'N/A',
                 status: 'pending'
             };
 
@@ -177,12 +176,13 @@
                 btn.disabled = false;
             } else {
                 await sendNotification(reportData);
-                alert("The report has been successfully submitted! It will be published after review.");
+                alert("Your report has been successfully submitted!✅ It will be published after review.");
                 window.location.href = 'index.html';
             }
         };
 
         checkSystemStatus();
+        tg.expand();
     </script>
 </body>
 </html>
