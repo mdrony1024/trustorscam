@@ -28,59 +28,101 @@
             width: 100%; padding: 15px; background: var(--primary); border: none; color: white;
             border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer;
         }
+        #closed-msg { display: none; text-align: center; margin-top: 50px; background: #17212b; padding: 20px; border-radius: 15px; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i></button>
-        <h2 style="margin:0; font-size: 1.2rem;">Submit Report</h2>
+    <div id="report-container">
+        <div class="header">
+            <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i></button>
+            <h2 style="margin:0; font-size: 1.2rem;">Submit Report</h2>
+        </div>
+
+        <form id="reportForm">
+            <div class="form-group">
+                <label>Report Type</label>
+                <select id="type" required onchange="checkAdminPrivilege()">
+                    <option value="scam">Scammer</option>
+                    <option value="trust">Trusted Member (Admin/Mod Only)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Full Name / Title</label>
+                <input type="text" id="name" placeholder="Enter name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Telegram IDs / Usernames</label>
+                <div id="tg-wrapper">
+                    <input type="text" class="tg-input" placeholder="@username or ID" required>
+                </div>
+                <button type="button" class="add-more-btn" onclick="addBox('tg-wrapper', 'tg-input', '@username or ID')">+ Add Another ID</button>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Numbers / Wallet Addresses</label>
+                <div id="payment-wrapper">
+                    <input type="text" class="payment-input" placeholder="Number or Wallet Address">
+                </div>
+                <button type="button" class="add-more-btn" onclick="addBox('payment-wrapper', 'payment-input', 'Number or Address')">+ Add Another Info</button>
+            </div>
+
+            <div class="form-group">
+                <label>Image URL (Optional)</label>
+                <input type="url" id="image_url" placeholder="Paste image link here">
+            </div>
+
+            <div class="form-group">
+                <label>Details / Evidence</label>
+                <textarea id="details" rows="4" placeholder="Describe your experience..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="subBtn">Submit Report</button>
+        </form>
     </div>
 
-    <form id="reportForm">
-        <div class="form-group">
-            <label>Report Type</label>
-            <select id="type" required>
-                <option value="scam">Scammer</option>
-                <option value="trust">Trusted Member</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Full Name / Title</label>
-            <input type="text" id="name" placeholder="Enter name" required>
-        </div>
-
-        <div class="form-group">
-            <label>Telegram IDs / Usernames</label>
-            <div id="tg-wrapper">
-                <input type="text" class="tg-input" placeholder="@username or ID" required>
-            </div>
-            <button type="button" class="add-more-btn" onclick="addBox('tg-wrapper', 'tg-input', '@username or ID')">+ Add Another ID</button>
-        </div>
-
-        <div class="form-group">
-            <label>Payment Numbers / Wallet Addresses</label>
-            <div id="payment-wrapper">
-                <input type="text" class="payment-input" placeholder="Number or Wallet Address">
-            </div>
-            <button type="button" class="add-more-btn" onclick="addBox('payment-wrapper', 'payment-input', 'Number or Address')">+ Add Another Info</button>
-        </div>
-
-        <div class="form-group">
-            <label>Image URL (Optional)</label>
-            <input type="url" id="image_url" placeholder="Paste image link here">
-        </div>
-
-        <div class="form-group">
-            <label>Details / Evidence</label>
-            <textarea id="details" rows="4" placeholder="Describe your experience..."></textarea>
-        </div>
-
-        <button type="submit" class="submit-btn" id="subBtn">Submit Report</button>
-    </form>
+    <div id="closed-msg">
+        <i class="fas fa-clock fa-3x" style="color: #ffa500; margin-bottom: 15px;"></i>
+        <h3>রিপোর্ট সিস্টেম সাময়িকভাবে বন্ধ আছে।</h3>
+        <p style="color: #708499;">অ্যাডমিন খুব শীঘ্রই এটি পুনরায় চালু করবেন।</p>
+        <button class="submit-btn" onclick="window.location.href='index.html'">ফিরে যান</button>
+    </div>
 
     <script>
+        const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
+        const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        const tg = window.Telegram.WebApp;
+        const user = tg.initDataUnsafe.user;
+
+        // ১. সিস্টেম অন/অফ চেক এবং অ্যাডমিন চেক
+        async function checkSystemStatus() {
+            const { data: statusData } = await _supabase.from('settings').select('*').eq('id', 'report_status').single();
+            const { data: admins } = await _supabase.from('moderators').select('tg_id'); // মডারেটরদের জন্য আলাদা টেবিল থাকা ভালো
+            
+            const isAdmin = admins?.some(a => a.tg_id === user?.id.toString());
+
+            if (statusData && statusData.content === 'off' && !isAdmin) {
+                document.getElementById('report-container').style.display = 'none';
+                document.getElementById('closed-msg').style.display = 'block';
+            }
+        }
+
+        // ২. ট্রাস্টেড আইডি জমা দেওয়ার প্রিভিলেজ চেক
+        function checkAdminPrivilege() {
+            const type = document.getElementById('type').value;
+            // এখানে আপনি চাইলে আপনার টেলিগ্রাম আইডি দিয়ে সরাসরি চেক করতে পারেন
+            const adminId = 5761590224; // আপনার নিজের আইডি এখানে দিতে পারেন
+            
+            if (type === 'trust' && user?.id !== adminId) {
+                alert("শুধুমাত্র অ্যাডমিন ও মডারেটররা 'Trusted' আইডি অ্যাড করতে পারবেন।");
+                document.getElementById('type').value = 'scam';
+            }
+        }
+
         function addBox(wrapperId, className, placeholder) {
             const wrapper = document.getElementById(wrapperId);
             const div = document.createElement('div');
@@ -92,9 +134,20 @@
             wrapper.appendChild(div);
         }
 
-        const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
-        const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
-        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+        // ৩. মডারেটরদের নোটিফিকেশন পাঠানো
+        async function sendNotification(data) {
+            const BOT_TOKEN = "YOUR_BOT_TOKEN";
+            const CHAT_ID = "YOUR_ADMIN_GROUP_ID";
+            const text = `🚨 *নতুন রিপোর্ট জমা হয়েছে!*\n\n📝 নাম: ${data.name}\n🆔 ID: ${data.tg_id}\n⚠️ ধরন: ${data.type}\n👤 রিপোর্টার: ${user?.first_name || 'Unknown'}`;
+            
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'Markdown' })
+                });
+            } catch(e) { console.error("Notification failed", e); }
+        }
 
         document.getElementById('reportForm').onsubmit = async (e) => {
             e.preventDefault();
@@ -102,7 +155,6 @@
             btn.innerText = "Submitting...";
             btn.disabled = true;
 
-            // Collecting multiple values into strings
             const tgIds = Array.from(document.querySelectorAll('.tg-input')).map(i => i.value).filter(v => v).join(', ');
             const payments = Array.from(document.querySelectorAll('.payment-input')).map(i => i.value).filter(v => v).join(', ');
 
@@ -113,6 +165,7 @@
                 contact: payments,
                 image_url: document.getElementById('image_url').value,
                 details: document.getElementById('details').value,
+                reporter_id: user?.id.toString(),
                 status: 'pending'
             };
 
@@ -123,10 +176,13 @@
                 btn.innerText = "Submit Report";
                 btn.disabled = false;
             } else {
-                alert("রিপোর্টটি সফলভাবে জমা দেওয়া হয়েছে!");
+                await sendNotification(reportData);
+                alert("রিপোর্টটি সফলভাবে জমা দেওয়া হয়েছে! এটি রিভিউ করার পর পাবলিশ করা হবে।");
                 window.location.href = 'index.html';
             }
         };
+
+        checkSystemStatus();
     </script>
 </body>
 </html>
