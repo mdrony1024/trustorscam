@@ -7,18 +7,49 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #0e1621; color: white; font-family: sans-serif; padding: 20px; }
-        .back-btn { color: #3390ec; text-decoration: none; display: block; margin-bottom: 20px; }
-        .detail-card { background: #17212b; border-radius: 20px; padding: 25px; text-align: center; }
-        .detail-img { width: 150px; height: 150px; border-radius: 25px; object-fit: cover; margin-bottom: 15px; }
-        .info-row { text-align: left; margin-top: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 10px 0; }
-        .label { color: #708499; font-size: 13px; }
-        .value { font-size: 16px; font-weight: bold; display: block; margin-top: 4px; color: #fff; }
+        :root { 
+            --bg: #0e1621; --card: #17212b; --text: #ffffff; 
+            --trust: #3390ec; --scam: #ff595a; --dim: #708499; 
+        }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 15px; line-height: 1.5; }
+        .back-btn { color: var(--trust); text-decoration: none; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-weight: 600; font-size: 15px; }
+        
+        .detail-card { background: var(--card); border-radius: 25px; padding: 30px 20px; text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); }
+        .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 20px; letter-spacing: 0.5px; }
+        
+        .img-container { position: relative; width: 130px; height: 130px; margin: 0 auto 15px; }
+        .detail-img { width: 100%; height: 100%; border-radius: 35px; object-fit: cover; border: 3px solid rgba(255,255,255,0.1); background: #242f3d; }
+        
+        .name-area { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 24px; font-weight: 800; margin: 10px 0; }
+        .blue-tick { color: #00a2ff; font-size: 20px; }
+        
+        /* রেটিং সেকশন */
+        .rating-box { display: flex; justify-content: center; gap: 30px; margin: 25px 0; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 20px; }
+        .rate-item { cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
+        .rate-item:active { transform: scale(0.9); }
+        .rate-item i { font-size: 26px; }
+        .rate-count { font-size: 15px; font-weight: bold; }
+        .rate-label { font-size: 10px; color: var(--dim); text-transform: uppercase; }
+
+        /* ইনফো গ্রিড */
+        .info-grid { text-align: left; margin-top: 25px; display: grid; gap: 15px; }
+        .info-item { background: rgba(255,255,255,0.03); padding: 14px 18px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .label { color: var(--dim); font-size: 11px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+        .value { font-size: 15px; font-weight: 600; margin-top: 6px; display: block; word-break: break-all; color: #e1e1e1; }
+        
+        .evidence-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px dashed rgba(255,255,255,0.1); text-align: left; }
+        .ss-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(51,144,236,0.1); color: var(--trust); padding: 12px; border-radius: 12px; text-decoration: none; margin-top: 10px; font-weight: bold; border: 1px solid rgba(51,144,236,0.2); font-size: 14px; }
+        .ss-btn:hover { background: rgba(51,144,236,0.2); }
     </style>
 </head>
 <body>
     <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
-    <div id="detailsArea" class="detail-card">লোড হচ্ছে...</div>
+    
+    <div id="detailsArea">
+        <div style="text-align: center; padding-top: 100px; color: var(--dim);">
+            <i class="fas fa-circle-notch fa-spin fa-2x"></i><br><br>তথ্য লোড হচ্ছে...
+        </div>
+    </div>
 
     <script>
         const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
@@ -27,18 +58,105 @@
 
         async function loadDetails() {
             const postId = localStorage.getItem('view_post_id');
-            const { data: post } = await _supabase.from('posts').select('*').eq('id', postId).single();
+            if(!postId) return;
+
+            const { data: post, error } = await _supabase.from('posts').select('*').eq('id', postId).single();
             
             if(post) {
+                const isTrust = post.type === 'trust';
+                const statusColor = isTrust ? 'var(--trust)' : 'var(--scam)';
+                
+                // স্ক্রিনশট লিংক রেন্ডার (একাধিক লিংক থাকলে আলাদা করবে)
+                let ssHtml = "";
+                if(post.image_url && post.image_url.includes('http')) {
+                    const links = post.image_url.split('\n');
+                    links.forEach((l, i) => {
+                        if(l.trim()) ssHtml += `<a href="${l.trim()}" target="_blank" class="ss-btn"><i class="fas fa-image"></i> View Screenshot ${links.length > 1 ? i+1 : ''}</a>`;
+                    });
+                }
+
+                // রেটিং লজিক: Trust হলে শুধু লাইক, Scam হলে লাইক ও ডিসলাইক
+                const ratingSection = isTrust ? `
+                    <div class="rating-box">
+                        <div class="rate-item" onclick="handleRate('up')">
+                            <i class="fas fa-heart" style="color:var(--trust)"></i>
+                            <span class="rate-count" id="up-count">${post.upvotes || 0}</span>
+                            <span class="rate-label">Trust Score</span>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="rating-box">
+                        <div class="rate-item" onclick="handleRate('up')">
+                            <i class="fas fa-thumbs-up" style="color:var(--trust)"></i>
+                            <span class="rate-count" id="up-count">${post.upvotes || 0}</span>
+                            <span class="rate-label">Safe</span>
+                        </div>
+                        <div class="rate-item" onclick="handleRate('down')">
+                            <i class="fas fa-thumbs-down" style="color:var(--scam)"></i>
+                            <span class="rate-count" id="down-count">${post.downvotes || 0}</span>
+                            <span class="rate-label">Scam</span>
+                        </div>
+                    </div>
+                `;
+
                 document.getElementById('detailsArea').innerHTML = `
-                    <img class="detail-img" src="${post.image_url || 'https://ui-avatars.com/api/?name='+post.name}">
-                    <h2 style="margin:10px 0;">${post.name}</h2>
-                    <div class="info-row"><span class="label">Telegram ID</span><span class="value">${post.tg_id}</span></div>
-                    <div class="info-row"><span class="label">Contact/Payment Info</span><span class="value">${post.contact || 'Not available'}</span></div>
-                    <div class="info-row"><span class="label">Details/Evidence</span><p style="color:#b1b1b1; line-height:1.5;">${post.details || 'No additional details.'}</p></div>
+                    <div class="detail-card">
+                        <div class="status-badge" style="background:${statusColor}22; color:${statusColor}; border:1px solid ${statusColor}44;">
+                            ${isTrust ? '<i class="fas fa-shield-alt"></i> Verified Trusted' : '<i class="fas fa-exclamation-triangle"></i> Reported Scammer'}
+                        </div>
+                        
+                        <div class="img-container">
+                            <img class="detail-img" src="${post.image_url && !post.image_url.includes('\n') ? post.image_url : 'https://ui-avatars.com/api/?name='+post.name+'&background=random'}" onerror="this.src='https://ui-avatars.com/api/?name=${post.name}'">
+                        </div>
+
+                        <div class="name-area">
+                            ${post.name}
+                            ${isTrust ? '<i class="fas fa-check-circle blue-tick"></i>' : ''}
+                        </div>
+
+                        ${ratingSection}
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="label">Telegram Details</span>
+                                <span class="value">${post.tg_id}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Payment / Contact Info</span>
+                                <span class="value">${post.contact || 'No information provided'}</span>
+                            </div>
+                        </div>
+
+                        <div class="evidence-box">
+                            <span class="label">Details & Evidence</span>
+                            <p style="font-size:14px; color:#b1b1b1; margin:8px 0;">${post.details || 'No additional details available.'}</p>
+                            ${ssHtml}
+                        </div>
+                    </div>
                 `;
             }
         }
+
+        async function handleRate(type) {
+            const postId = localStorage.getItem('view_post_id');
+            const field = type === 'up' ? 'upvotes' : 'downvotes';
+            
+            // ডাটাবেসে ভোট ১ বাড়ানোর জন্য RPC কল
+            const { error } = await _supabase.rpc('increment_vote', { 
+                row_id: postId, 
+                field_name: field 
+            });
+            
+            if (error) {
+                console.error("Rating Error:", error.message);
+                // যদি RPC কাজ না করে তবে সরাসরি UI-তে ১ বাড়িয়ে দেখানো (সাময়িক)
+                const el = document.getElementById(type + '-count');
+                el.innerText = parseInt(el.innerText) + 1;
+            } else {
+                loadDetails(); // ডাটাবেস থেকে ফ্রেশ কাউন্ট নিয়ে আসা
+            }
+        }
+
         loadDetails();
     </script>
 </body>
