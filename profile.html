@@ -2,157 +2,76 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Profile - TrustOrScam Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --tg-bg: #0e1621; --tg-secondary: #17212b; --primary: #3390ec; --gold: #ffcf40; --silver: #c0c0c0; --bronze: #cd7f32; }
-        body { font-family: -apple-system, sans-serif; background: var(--tg-bg); color: white; margin: 0; padding: 0; padding-bottom: 90px; overflow-x: hidden; }
-        
-        .profile-header { background: var(--tg-secondary); padding: 30px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .avatar { width: 85px; height: 85px; background: var(--primary); border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; border: 3px solid rgba(255,255,255,0.1); }
-        
-        /* লিডারবোর্ড বাটন */
-        .btn-box-container { padding: 0 20px; margin-top: -25px; }
+        :root { --tg-bg: #0e1621; --tg-secondary: #17212b; --primary: #3390ec; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, sans-serif; background: var(--tg-bg); color: white; margin: 0; padding-bottom: 80px; }
+
+        .profile-header { padding: 30px 20px; text-align: center; background: var(--tg-secondary); border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+        .avatar { width: 75px; height: 75px; background: var(--primary); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; border: 2px solid rgba(255,255,255,0.1); }
+        .u-name { font-size: 20px; font-weight: bold; margin: 5px 0; }
+        .u-id { color: #708499; font-size: 13px; }
+
+        .leader-box { padding: 0 20px; margin-top: -22px; }
         .leader-btn { 
-            background: linear-gradient(135deg, #5b5df5, #3390ec); 
-            color: white; border: none; width: 100%; padding: 18px; 
-            border-radius: 20px; font-size: 16px; font-weight: bold; 
-            cursor: pointer; display: flex; align-items: center; 
-            justify-content: center; gap: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            text-decoration: none;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            color: white; text-decoration: none; display: flex; align-items: center; justify-content: center;
+            gap: 10px; padding: 15px; border-radius: 15px; font-weight: bold; font-size: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .section-title { padding: 25px 20px 12px; font-size: 15px; color: var(--primary); font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .section-label { padding: 25px 20px 10px; font-size: 13px; font-weight: bold; color: var(--primary); letter-spacing: 0.5px; }
+        .menu-list { margin: 0 20px; display: flex; flex-direction: column; gap: 8px; }
+        .menu-item { background: var(--tg-secondary); padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: white; border: 1px solid rgba(255,255,255,0.03); }
+        .menu-left { display: flex; align-items: center; gap: 12px; font-size: 15px; }
+        .menu-left i { color: var(--primary); width: 20px; text-align: center; }
 
-        /* লিডারবোর্ড লিস্ট */
-        .leaderboard-list { margin: 0 20px; display: flex; flex-direction: column; gap: 10px; }
-        .leader-card { 
-            background: var(--tg-secondary); border-radius: 18px; padding: 12px; 
-            display: flex; align-items: center; gap: 15px; border: 1px solid rgba(255,255,255,0.05);
-            text-decoration: none; color: white; transition: 0.2s;
-        }
-        .leader-card:active { transform: scale(0.98); background: #202b36; }
-        
-        .rank-1 { border-color: var(--gold); }
-        .rank-2 { border-color: var(--silver); }
-        .rank-3 { border-color: var(--bronze); }
-
-        .l-rank { width: 35px; height: 35px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }
-        .rank-1 .l-rank { background: var(--gold); color: black; }
-        
-        .l-avatar { width: 50px; height: 50px; border-radius: 15px; object-fit: cover; background: #242f3d; }
-        .l-info { flex: 1; }
-        .l-name { display: block; font-weight: 600; font-size: 15px; margin-bottom: 2px; }
-        .l-points { color: var(--primary); font-size: 13px; font-weight: bold; }
-
-        /* সেটিংস মেনু */
-        .settings-area { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
-        .setting-item { background: var(--tg-secondary); padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: white; border: 1px solid rgba(255,255,255,0.02); }
-        .setting-left { display: flex; align-items: center; gap: 12px; }
-        .setting-left i { color: var(--primary); width: 20px; text-align: center; }
-
-        .nav-menu { position: fixed; bottom: 0; width: 100%; background: var(--tg-secondary); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.05); z-index: 100; }
-        .nav-item { color: #708499; text-decoration: none; display: flex; flex-direction: column; align-items: center; font-size: 11px; gap: 4px; }
-        .nav-item.active { color: var(--primary); }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: var(--tg-secondary); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.05); }
+        .nav-link { color: #708499; text-decoration: none; text-align: center; flex: 1; font-size: 10px; }
+        .nav-link i { font-size: 20px; display: block; margin-bottom: 3px; }
+        .nav-link.active { color: var(--primary); }
     </style>
 </head>
 <body>
 
     <div class="profile-header">
-        <div class="avatar" id="pInit">?</div>
-        <h2 id="pName" style="margin: 0; font-size: 22px;">Loading...</h2>
-        <span id="pIdDisplay" style="color: #708499; font-size: 13px;">Telegram User</span>
+        <div class="avatar" id="uInit">?</div>
+        <div class="u-name" id="uName">Loading...</div>
+        <div class="u-id" id="uId">Account ID: ---</div>
     </div>
 
-    <div class="btn-box-container">
-        <a href="#leaderboard-section" class="leader-btn">
+    <div class="leader-box">
+        <a href="leaderboard.html" class="leader-btn">
             <i class="fas fa-trophy"></i> Go to Leaderboard
         </a>
     </div>
 
-    <div id="leaderboard-section" class="section-title">
-        <i class="fas fa-crown"></i> Top Trusted Members
-    </div>
-    
-    <div class="leaderboard-list" id="leaderboardList">
-        <div style="text-align: center; padding: 20px; color: #708499;">Loading rankings...</div>
-    </div>
-
-    <div class="section-title"><i class="fas fa-cog"></i> Settings & Support</div>
-    <div class="settings-area">
-        <a href="developer.html" class="setting-item">
-            <div class="setting-left"><i class="fas fa-code"></i> <span>Developer Info</span></div>
-            <i class="fas fa-chevron-right" style="font-size: 12px; color: #708499;"></i>
-        </a>
-        <a href="support.html" class="setting-item">
-            <div class="setting-left"><i class="fas fa-question-circle"></i> <span>Support Center</span></div>
-            <i class="fas fa-chevron-right" style="font-size: 12px; color: #708499;"></i>
-        </a>
-        <div class="setting-item" onclick="shareApp()">
-            <div class="setting-left"><i class="fas fa-share-alt"></i> <span>Share App</span></div>
-            <i class="fas fa-chevron-right" style="font-size: 12px; color: #708499;"></i>
-        </div>
+    <div class="section-label">SETTINGS & HELP</div>
+    <div class="menu-list">
+        <a href="developer.html" class="menu-item"><div class="menu-left"><i class="fas fa-code"></i> Developer Info</div><i class="fas fa-angle-right" style="color:#708499"></i></a>
+        <a href="support.html" class="menu-item"><div class="menu-left"><i class="fas fa-headset"></i> Support Center</div><i class="fas fa-angle-right" style="color:#708499"></i></a>
+        <div class="menu-item" onclick="share()"><div class="menu-left"><i class="fas fa-share-nodes"></i> Share App</div><i class="fas fa-angle-right" style="color:#708499"></i></div>
     </div>
 
-    <div class="nav-menu">
-        <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
-        <a href="report.html" class="nav-item"><i class="fas fa-plus-circle"></i><span>Report</span></a>
-        <a href="history.html" class="nav-item"><i class="fas fa-history"></i><span>History</span></a>
-        <a href="profile.html" class="nav-item active"><i class="fas fa-user-circle"></i><span>Profile</span></a>
+    <div class="nav-bar">
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i>Home</a>
+        <a href="report.html" class="nav-link"><i class="fas fa-plus-circle"></i>Report</a>
+        <a href="history.html" class="nav-link"><i class="fas fa-history"></i>History</a>
+        <a href="profile.html" class="nav-link active"><i class="fas fa-user-circle"></i>Profile</a>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
-        const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
-        const _supabase = supabase.createClient(SB_URL, SB_KEY);
-
         const user = tg.initDataUnsafe.user;
         if(user) {
-            document.getElementById('pName').innerText = user.first_name + (user.last_name ? " " + user.last_name : "");
-            document.getElementById('pIdDisplay').innerText = "Account ID: " + user.id;
-            document.getElementById('pInit').innerText = user.first_name.charAt(0).toUpperCase();
+            document.getElementById('uName').innerText = user.first_name + (user.last_name ? " " + user.last_name : "");
+            document.getElementById('uId').innerText = "Account ID: " + user.id;
+            document.getElementById('uInit').innerText = user.first_name.charAt(0).toUpperCase();
         }
-
-        async function loadLeaderboard() {
-            const { data, error } = await _supabase
-                .from('posts')
-                .select('*')
-                .eq('type', 'trust')
-                .order('upvotes', { ascending: false })
-                .limit(10);
-
-            if (data) {
-                let html = "";
-                data.forEach((item, index) => {
-                    const rankClass = index < 3 ? `rank-${index + 1}` : '';
-                    const profileLink = item.tg_id.startsWith('@') ? `https://t.me/${item.tg_id.substring(1)}` : `https://t.me/${item.tg_id}`;
-                    
-                    html += `
-                        <a href="${profileLink}" target="_blank" class="leader-card ${rankClass}">
-                            <div class="l-rank">${index + 1}</div>
-                            <img class="l-avatar" src="${item.image_url || 'https://ui-avatars.com/api/?name='+item.name}" onerror="this.src='https://ui-avatars.com/api/?name=${item.name}'">
-                            <div class="l-info">
-                                <span class="l-name">${item.name}</span>
-                                <span class="l-points"><i class="fas fa-arrow-up"></i> ${item.upvotes || 0} Up Ratings</span>
-                            </div>
-                            <i class="fab fa-telegram-plane" style="color: #3390ec; font-size: 20px;"></i>
-                        </a>
-                    `;
-                });
-                document.getElementById('leaderboardList').innerHTML = html || "<p style='text-align:center;color:#708499;'>No rankings found</p>";
-            }
-        }
-
-        function shareApp() {
-            const shareText = encodeURIComponent("Check out TrustOrScam Bot! Verify trusted members and stay safe.");
-            tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/YourBotUsername&text=${shareText}`);
-        }
-
-        loadLeaderboard();
+        function share() { tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/trustorscambot&text=Check this out!`); }
         tg.expand();
     </script>
 </body>
