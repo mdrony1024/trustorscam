@@ -1,10 +1,9 @@
 import os
-from flask import Flask, request
 import telebot
+from flask import Flask, request
 
-# আপনার বোট টোকেন
 TOKEN = '8276016320:AAH82uoHR6FlWBmyBQTDjnWW7DSpCYt-3fk'
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(TOKEN, threaded=False)
 app = Flask(__name__)
 
 @app.route('/api/webhook', methods=['POST'])
@@ -18,9 +17,8 @@ def webhook():
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    name = message.from_user.first_name
     markup = telebot.types.InlineKeyboardMarkup()
-    # আপনার অ্যাপের বর্তমান লিঙ্ক
+    # আপনার ভেরসেল অ্যাপ লিঙ্ক
     web_app_url = "https://trustorscam.vercel.app/" 
     
     btn = telebot.types.InlineKeyboardButton(
@@ -29,9 +27,8 @@ def start(message):
     )
     markup.add(btn)
     
-    welcome_text = (
-        f"স্বাগতম **{name}**!\n\n"
-        "**TrustOrScam Pro**-তে আপনাকে স্বাগতম।\n"
-        "নিচের বাটনে ক্লিক করে কাজ শুরু করুন।"
-    )
-    bot.send_message(message.chat.id, welcome_text, reply_markup=markup, parse_mode="Markdown")
+    bot.reply_to(message, "স্বাগতম! TrustOrScam মিনি অ্যাপটি ব্যবহার করতে নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
+
+# Vercel এর জন্য এটি দরকার
+def handler(request):
+    return app(request)
