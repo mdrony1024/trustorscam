@@ -18,9 +18,13 @@ def webhook():
 def start(message):
     markup = telebot.types.InlineKeyboardMarkup()
     web_app_url = "https://trustorscam.vercel.app/" 
-    btn = telebot.types.InlineKeyboardButton(text="অ্যাপ ওপেন করুন ✨", web_app=telebot.types.WebAppInfo(url=web_app_url))
+    btn = telebot.types.InlineKeyboardButton(text="Open App ✨🎭", web_app=telebot.types.WebAppInfo(url=web_app_url))
     markup.add(btn)
-    bot.send_message(message.chat.id, "স্বাগতম! কাজ শুরু করতে নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
+    bot.send_message(message.chat.id, "Welcome to **TrustOrScam**! 🛡️
+
+Verify IDs, report scams, and stay safe in the digital world. Use our professional tools to check credibility instantly.
+
+Click the button below to launch the app and start searching!", reply_markup=markup)
 
 # এটি Vercel এর জন্য বাধ্যতামূলক
 @app.route('/')
