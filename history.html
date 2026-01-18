@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,15 +17,15 @@
             --danger: #ef5350;
         }
         body { 
-            font-family: -apple-system, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             background: var(--tg-bg); 
             color: white; 
             margin: 0; 
             padding: 0; 
             padding-bottom: 80px; 
+            overflow-x: hidden;
         }
 
-        /* Header */
         .header { 
             padding: 15px; 
             background: var(--tg-secondary); 
@@ -41,15 +41,14 @@
 
         .container { padding: 15px; }
 
-        /* History Cards */
         .history-card {
             background: var(--tg-secondary);
-            border-radius: 15px;
+            border-radius: 12px;
             padding: 15px;
             margin-bottom: 12px;
-            border-left: 5px solid #888;
+            border-left: 4px solid #888;
             position: relative;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.4s ease-out;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -61,44 +60,35 @@
             position: absolute;
             top: 15px;
             right: 15px;
-            font-size: 10px;
+            font-size: 11px;
             padding: 4px 8px;
-            border-radius: 5px;
+            border-radius: 6px;
             text-transform: uppercase;
             font-weight: bold;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.08);
         }
 
-        .card-name { font-weight: bold; font-size: 16px; margin-bottom: 5px; display: block; }
-        .card-info { font-size: 13px; color: #708499; margin-top: 3px; }
-        .card-info i { width: 18px; color: var(--primary); }
+        .card-name { font-weight: 600; font-size: 16px; margin-bottom: 6px; display: block; }
+        .card-info { font-size: 13px; color: #708499; margin-top: 4px; display: flex; align-items: center; gap: 8px; }
+        .card-info i { width: 16px; color: var(--primary); text-align: center; }
 
-        /* Bottom Nav */
+        /* Nav Menu */
         .nav-menu {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--tg-secondary);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            z-index: 1000;
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--tg-secondary); display: flex;
+            justify-content: space-around; padding: 10px 0;
+            border-top: 1px solid rgba(255,255,255,0.05); z-index: 1000;
         }
         .nav-item {
-            color: #708499;
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 11px;
-            gap: 4px;
+            color: #708499; text-decoration: none;
+            display: flex; flex-direction: column; align-items: center;
+            font-size: 11px; gap: 4px; transition: 0.2s;
         }
         .nav-item.active { color: var(--primary); }
         .nav-item i { font-size: 20px; }
 
-        #empty-state { text-align: center; margin-top: 50px; color: #708499; }
+        #empty-state { text-align: center; margin-top: 60px; color: #708499; }
+        #empty-state i { margin-bottom: 15px; opacity: 0.5; }
     </style>
 </head>
 <body>
@@ -109,89 +99,89 @@
     </div>
 
     <div class="container" id="historyList">
-        <p style="text-align: center; color: #708499;">লোড হচ্ছে...</p>
+        <div id="empty-state"><p>Loading history...</p></div>
     </div>
 
     <div class="nav-menu">
-        <a href="index.html" class="nav-item">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="report.html" class="nav-item">
-            <i class="fas fa-plus-circle"></i>
-            <span>Report</span>
-        </a>
-        <a href="history.html" class="nav-item active">
-            <i class="fas fa-history"></i>
-            <span>History</span>
-        </a>
-        <a href="profile.html" class="nav-item">
-            <i class="fas fa-user-circle"></i>
-            <span>Profile</span>
-        </a>
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="report.html" class="nav-item"><i class="fas fa-plus-circle"></i><span>Report</span></a>
+        <a href="history.html" class="nav-item active"><i class="fas fa-history"></i><span>History</span></a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user-circle"></i><span>Profile</span></a>
     </div>
 
     <script>
+        // Supabase কনফিগারেশন
         const SB_URL = "https://detmrsznwyalybdecqpn.supabase.co";
-        const SB_KEY = "sb_publishable_mI0X-fBPpat-EPdBAKedgQ_n3d1nr2f";
+        // এই কী-টি অবশ্যই আপনার Supabase ড্যাশবোর্ড থেকে 'anon public' কী দিয়ে রিপ্লেস করবেন
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         const tg = window.Telegram.WebApp;
-        const user = tg.initDataUnsafe.user;
+        tg.expand();
 
         async function loadUserHistory() {
-            if (!user) {
-                document.getElementById('historyList').innerHTML = '<div id="empty-state">Telegram User Not Found!</div>';
-                return;
-            }
-
-            // এখানে আপনার ডাটাবেজের 'reporter_id' কলামের সাথে ইউজারের আইডি ম্যাচ করানো হবে
-            const { data: posts, error } = await _supabase
-                .from('posts')
-                .select('*')
-                .eq('reporter_id', user.id.toString()) 
-                .order('created_at', { ascending: false });
-
             const list = document.getElementById('historyList');
-            list.innerHTML = '';
+            const user = tg.initDataUnsafe.user;
 
-            if (error || !posts || posts.length === 0) {
-                list.innerHTML = '<div id="empty-state"><i class="fas fa-folder-open fa-3x"></i><p>আপনি এখনো কোনো রিপোর্ট করেননি।</p></div>';
+            if (!user) {
+                list.innerHTML = '<div id="empty-state"><i class="fas fa-user-slash fa-3x"></i><p>Telegram User Not Found!</p></div>';
                 return;
             }
 
-            const now = new Date();
-            let hasVisiblePosts = false;
+            try {
+                // ডাটাবেস থেকে রিপোর্ট সংগ্রহ
+                const { data: posts, error } = await _supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('reporter_id', user.id.toString())
+                    .order('created_at', { ascending: false });
 
-            posts.forEach(p => {
-                const postDate = new Date(p.created_at);
-                const diffHours = (now - postDate) / (1000 * 60 * 60);
+                if (error) throw error;
 
-                // শর্ত: স্ট্যাটাস rejected হলে এবং ২৪ ঘণ্টা পার হয়ে গেলে দেখাবে না
-                if (p.status === 'rejected' && diffHours > 24) return;
+                if (!posts || posts.length === 0) {
+                    list.innerHTML = '<div id="empty-state"><i class="fas fa-folder-open fa-3x"></i><p>You haven\'t reported anyone yet.</p></div>';
+                    return;
+                }
 
-                hasVisiblePosts = true;
-                const card = document.createElement('div');
-                card.className = `history-card status-${p.status}`;
-                
-                let statusColor = p.status === 'approved' ? 'var(--success)' : (p.status === 'pending' ? 'var(--warning)' : 'var(--danger)');
+                list.innerHTML = '';
+                const now = new Date();
+                let visibleCount = 0;
 
-                card.innerHTML = `
-                    <span class="status-badge" style="color: ${statusColor}">${p.status}</span>
-                    <span class="card-name">${p.name}</span>
-                    <div class="card-info"><i class="fas fa-fingerprint"></i> ID: ${p.tg_id}</div>
-                    <div class="card-info"><i class="fas fa-clock"></i> ${postDate.toLocaleDateString()}</div>
-                `;
-                list.appendChild(card);
-            });
+                posts.forEach(p => {
+                    const postDate = new Date(p.created_at);
+                    const diffHours = (now - postDate) / (1000 * 60 * 60);
 
-            if (!hasVisiblePosts) {
-                list.innerHTML = '<div id="empty-state"><p>সাম্প্রতিক কোনো ইতিহাস নেই।</p></div>';
+                    // Rejected পোস্ট ২৪ ঘণ্টা পর হাইড হবে
+                    if (p.status === 'rejected' && diffHours > 24) return;
+
+                    visibleCount++;
+                    const card = document.createElement('div');
+                    card.className = `history-card status-${p.status || 'pending'}`;
+                    
+                    const status = p.status || 'pending';
+                    let statusColor = status === 'approved' ? 'var(--success)' : (status === 'pending' ? 'var(--warning)' : 'var(--danger)');
+
+                    card.innerHTML = `
+                        <span class="status-badge" style="color: ${statusColor}">${status}</span>
+                        <span class="card-name">${p.name || 'Unknown User'}</span>
+                        <div class="card-info"><i class="fas fa-fingerprint"></i> <span>ID: ${p.tg_id || 'N/A'}</span></div>
+                        <div class="card-info"><i class="fas fa-clock"></i> <span>${postDate.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'})}</span></div>
+                    `;
+                    list.appendChild(card);
+                });
+
+                if (visibleCount === 0) {
+                    list.innerHTML = '<div id="empty-state"><p>No recent reports to show.</p></div>';
+                }
+
+            } catch (err) {
+                console.error("Supabase Error:", err);
+                list.innerHTML = `<div id="empty-state"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error: ${err.message}</p></div>`;
             }
         }
 
-        loadUserHistory();
-        tg.expand();
+        // পেজ লোড হলে ফাংশন কল হবে
+        document.addEventListener('DOMContentLoaded', loadUserHistory);
     </script>
 </body>
 </html>
