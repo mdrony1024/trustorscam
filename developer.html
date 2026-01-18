@@ -3,159 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Developer Info - Animated Premium</title>
+    <title>Developer Info</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-    
     <style>
-        :root {
-            --bg: #0e1621;
-            --card-bg: #17212b;
-            --tg-blue: #24A1DE;
-            --premium-gradient: linear-gradient(135deg, #62baff, #24a1de);
-        }
+        :root { --bg: #0e1621; --card: #17212b; --primary: #3390ec; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: white; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        
+        .dev-card { width: 90%; max-width: 350px; background: var(--card); border-radius: 30px; padding: 35px 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+        
+        /* প্রোফাইল ইমেজ */
+        .img-box { width: 115px; height: 115px; border-radius: 50%; border: 3px solid var(--primary); margin: 0 auto 15px; overflow: hidden; box-shadow: 0 0 20px rgba(51, 144, 236, 0.3); }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        body {
-            font-family: -apple-system, sans-serif;
-            background: var(--bg);
-            color: white;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
+        /* নাম এবং এনিমেটেড ইমোজি */
+        .name-row { display: flex; align-items: center; justify-content: center; gap: 5px; margin-bottom: 5px; }
+        .name-row h2 { margin: 0; font-size: 24px; font-weight: bold; }
+        
+        /* টেলিগ্রাম প্রিমিয়াম এনিমেশন ইফেক্ট */
+        .tg-emoji { width: 28px; height: 28px; vertical-align: middle; }
 
-        .premium-card {
-            width: 90%;
-            max-width: 360px;
-            background: var(--card-bg);
-            border-radius: 30px;
-            padding: 35px 20px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 15px 45px rgba(0,0,0,0.6);
-            position: relative;
-        }
+        .bio { color: #708499; font-size: 14px; margin-bottom: 30px; line-height: 1.4; }
 
-        /* Profile Image Section */
-        .profile-container {
-            width: 110px;
-            height: 110px;
-            margin: 0 auto 15px;
-            position: relative;
+        /* প্রিমিয়াম সোশ্যাল আইকন */
+        .social-row { display: flex; justify-content: center; gap: 15px; margin-bottom: 35px; }
+        .s-icon { 
+            width: 50px; height: 50px; background: rgba(255,255,255,0.06); border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; color: white; 
+            text-decoration: none; font-size: 22px; transition: 0.3s; border: 1px solid rgba(255,255,255,0.1); 
         }
-        .profile-img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 3px solid #24a1de;
-            object-fit: cover;
-            box-shadow: 0 0 15px rgba(36, 161, 222, 0.4);
-        }
+        .s-icon:hover { transform: translateY(-5px); background: var(--primary); box-shadow: 0 10px 20px rgba(51, 144, 236, 0.4); }
 
-        /* Animated Badges Container */
-        .name-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            margin-bottom: 5px;
+        /* গ্লোসি ব্যাক বাটন */
+        .back-now { 
+            background: linear-gradient(90deg, #0088cc, #61b1ff); color: white; text-decoration: none; 
+            padding: 15px 45px; border-radius: 20px; font-weight: bold; display: inline-flex; 
+            align-items: center; gap: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); transition: 0.2s;
         }
-        .name-wrapper h2 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        /* Lottie Badge Sizing */
-        .badge-anim {
-            width: 28px;
-            height: 28px;
-            display: inline-block;
-        }
-
-        .bio {
-            color: #708499;
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-
-        /* Glossy Social Icons */
-        .social-row {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 35px;
-        }
-        .social-btn {
-            width: 50px;
-            height: 50px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            color: white;
-            text-decoration: none;
-            transition: 0.3s;
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-        .social-btn:hover {
-            background: var(--premium-gradient);
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(36, 161, 222, 0.4);
-        }
-
-        /* Animated Back Button */
-        .back-btn {
-            background: var(--premium-gradient);
-            color: white;
-            text-decoration: none;
-            padding: 15px 45px;
-            border-radius: 20px;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 25px rgba(0, 136, 204, 0.3);
-            transition: 0.3s;
-        }
-        .back-btn:active { transform: scale(0.95); }
+        .back-now:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
-    <div class="premium-card">
-        <div class="profile-container">
-            <img src="https://i.ibb.co/C0W2wXN/My-img-2.jpg" class="profile-img" alt="Md Rony">
+    <div class="dev-card">
+        <div class="img-box">
+            <img src="https://i.ibb.co/C0W2wXN/My-img-2.jpg" alt="Md Rony">
         </div>
 
-        <div class="name-wrapper">
+        <div class="name-row">
             <h2>Md Rony</h2>
-            
-            <div class="badge-anim">
-                <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_6p8ovm7e.json" background="transparent" speed="1" loop autoplay></lottie-player>
-            </div>
-            
-            <div class="badge-anim">
-                <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_at6m5f.json" background="transparent" speed="1.2" loop autoplay></lottie-player>
-            </div>
+            <img class="tg-emoji" src="https://fonts.gstatic.com/s/e/notoemoji/latest/2705/512.gif" alt="✅">
+            <img class="tg-emoji" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4bb/512.gif" alt="💻">
         </div>
 
         <p class="bio">Founder & Lead Developer<br>TrustOrScam Pro Project</p>
 
         <div class="social-row">
-            <a href="https://t.me/mdronytop" class="social-btn"><i class="fab fa-telegram-plane"></i></a>
-            <a href="https://facebook.com/mdrony.top" class="social-btn"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://instagram.com/mdrony.top" class="social-btn"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="social-btn"><i class="fas fa-globe"></i></a>
+            <a href="https://t.me/mdronytop" class="s-icon"><i class="fab fa-telegram-plane"></i></a>
+            <a href="#" class="s-icon"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="s-icon"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="s-icon"><i class="fas fa-globe"></i></a>
         </div>
 
-        <a href="profile.html" class="back-btn">
+        <a href="profile.html" class="back-now">
             <i class="fas fa-arrow-left"></i> Back Now
         </a>
     </div>
