@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - TrustOrScam</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --bg: #0e1621; --card: #17212b; --primary: #3390ec; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; }
+        
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .back-btn { color: white; font-size: 20px; text-decoration: none; }
+        
+        .support-card { background: linear-gradient(135deg, #1d2b3a 0%, #17212b 100%); padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(51, 144, 236, 0.3); margin-bottom: 30px; }
+        .support-card i { font-size: 40px; color: var(--primary); margin-bottom: 15px; }
+        .contact-btn { background: var(--primary); color: white; text-decoration: none; padding: 12px 25px; border-radius: 12px; display: inline-flex; align-items: center; gap: 10px; font-weight: bold; margin-top: 15px; }
+
+        .faq-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--primary); }
+        .faq-item { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+        .faq-q { font-weight: bold; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; }
+        .faq-a { font-size: 13px; color: #708499; margin-top: 10px; display: none; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="profile.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h2 style="margin: 0;">Support Center</h2>
+    </div>
+
+    <div class="support-card">
+        <i class="fas fa-user-shield"></i>
+        <h3>যেকোনো প্রয়োজনে সাহায্য নিন</h3>
+        <p style="font-size: 13px; color: #708499;">আমাদের টিম আপনাকে সাহায্য করার জন্য প্রস্তুত।</p>
+        <a href="https://t.me/mdronytop" class="contact-btn"><i class="fab fa-telegram-plane"></i> Contact Support</a>
+    </div>
+
+    <div class="faq-title">সাধারণ প্রশ্নাবলী</div>
+    
+    <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">কিভাবে রিপোর্ট জমা দেব? <i class="fas fa-plus" style="font-size: 12px;"></i></div>
+        <div class="faq-a">নিচের মেনু থেকে 'Report' বাটনে ক্লিক করে ফর্মটি পূরণ করুন এবং প্রমাণসহ সাবমিট করুন।</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">ভুল রিপোর্ট ডিলিট করবো কিভাবে? <i class="fas fa-plus" style="font-size: 12px;"></i></div>
+        <div class="faq-a">ভুল রিপোর্টের ক্ষেত্রে সরাসরি এডমিনকে মেসেজ দিন, এডমিন যাচাই করে তা রিমুভ করে দেবে।</div>
+    </div>
+
+    <script>
+        function toggleFaq(el) {
+            const ans = el.querySelector('.faq-a');
+            const icon = el.querySelector('.fa-plus, .fa-minus');
+            if(ans.style.display === "block") {
+                ans.style.display = "none";
+                icon.classList.replace('fa-minus', 'fa-plus');
+            } else {
+                ans.style.display = "block";
+                icon.classList.replace('fa-plus', 'fa-minus');
+            }
+        }
+        window.Telegram.WebApp.expand();
+    </script>
+</body>
+</html>
