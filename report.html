@@ -135,7 +135,7 @@
         async function sendNotification(data) {
             const BOT_TOKEN = "8276016320:AAH82uoHR6FlWBmyBQTDjnWW7DSpCYt-3fk";
             const CHAT_ID = "-1003486386077";
-            const text = `🚨 <b>নতুন রিপোর্ট জমা হয়েছে!</b>\n\n👤 <b>রিপোর্টার:</b> ${user?.first_name || 'অজানা'}\n📝 <b>নাম:</b> ${data.name}\n🆔 <b>ID:</b> ${data.tg_id}\n⚠️ <b>ধরণ:</b> ${data.type.toUpperCase()}\n🖼 <b>এভিডেন্স লিংক:</b>\n${data.image_url || 'নাই'}`;
+            const text = `🚨 <b>নতুন রিপোর্ট জমা হয়েছে!</b>\n\n👤 <b>রিপোর্টার:</b> ${user?.username ? '@' + user.username : user?.first_name || 'অজানা'}\n📝 <b>নাম:</b> ${data.name}\n🆔 <b>ID:</b> ${data.tg_id}\n⚠️ <b>ধরণ:</b> ${data.type.toUpperCase()}\n🖼 <b>এভিডেন্স লিংক:</b>\n${data.image_url || 'নাই'}`;
             
             try {
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
