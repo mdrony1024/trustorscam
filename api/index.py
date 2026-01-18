@@ -1,4 +1,3 @@
-import os
 import telebot
 from flask import Flask, request
 
@@ -18,17 +17,12 @@ def webhook():
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = telebot.types.InlineKeyboardMarkup()
-    # আপনার ভেরসেল অ্যাপ লিঙ্ক
     web_app_url = "https://trustorscam.vercel.app/" 
-    
-    btn = telebot.types.InlineKeyboardButton(
-        text="অ্যাপ ওপেন করুন ✨", 
-        web_app=telebot.types.WebAppInfo(url=web_app_url)
-    )
+    btn = telebot.types.InlineKeyboardButton(text="অ্যাপ ওপেন করুন ✨", web_app=telebot.types.WebAppInfo(url=web_app_url))
     markup.add(btn)
-    
-    bot.reply_to(message, "স্বাগতম! TrustOrScam মিনি অ্যাপটি ব্যবহার করতে নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
+    bot.send_message(message.chat.id, "স্বাগতম! কাজ শুরু করতে নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
 
-# Vercel এর জন্য এটি দরকার
-def handler(request):
-    return app(request)
+# এটি Vercel এর জন্য বাধ্যতামূলক
+@app.route('/')
+def index():
+    return "Bot is running..."
