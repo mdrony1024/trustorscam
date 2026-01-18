@@ -2,55 +2,168 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaderboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Leaderboard - TrustOrScam</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #0e1621; color: white; font-family: sans-serif; margin: 0; padding: 20px; }
-        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        :root {
+            --bg: #0e1621;
+            --card-bg: #1c2733;
+            --primary: #3390ec;
+            --gold: #ffcf40;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: white; margin: 0; padding: 0; }
+
+        /* হেডার স্টাইল */
+        .header {
+            background: linear-gradient(180deg, #7a5af8 0%, var(--bg) 100%);
+            padding: 25px 20px 40px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
         .back-btn { color: white; font-size: 20px; text-decoration: none; }
+        .header h2 { margin: 0; font-size: 22px; font-weight: bold; }
+
+        /* কন্টেইনার */
+        .container {
+            margin-top: -25px;
+            background: var(--bg);
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+            padding: 20px 15px;
+        }
+
+        .lb-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* লিডারবোর্ড কার্ড ডিজাইন (স্ক্রিনশট অনুযায়ী) */
+        .lb-card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+            text-decoration: none;
+            color: white;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.2s;
+        }
+
+        /* টপ ৩ র‍্যাঙ্ক বর্ডার */
+        .rank-1 { border: 2px solid var(--gold); }
+        .rank-2 { border: 1px solid var(--silver); }
+        .rank-3 { border: 1px solid var(--bronze); }
+
+        .rank-badge {
+            width: 35px;
+            height: 22px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+            position: absolute;
+            top: -8px;
+            left: 15px;
+        }
+        .rank-1 .rank-badge { background: var(--gold); color: black; }
+        .rank-2 .rank-badge { background: var(--silver); color: black; }
+        .rank-3 .rank-badge { background: var(--bronze); color: black; }
+
+        .user-img {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .user-info { flex: 1; }
+        .user-info b { font-size: 16px; display: flex; align-items: center; gap: 5px; }
+        .user-info span { font-size: 13px; color: var(--primary); font-weight: bold; display: block; margin-top: 3px; }
         
-        .l-card { background: #17212b; padding: 12px; border-radius: 15px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); text-decoration: none; color: white; }
-        .rank { width: 30px; height: 30px; border-radius: 50%; background: #3390ec; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
-        .l-img { width: 45px; height: 45px; border-radius: 12px; }
-        .l-info { flex: 1; }
-        .l-info b { font-size: 15px; display: block; }
-        .l-info span { font-size: 12px; color: #4caf50; }
+        .crown { color: var(--gold); font-size: 14px; }
+        .tg-icon { color: rgba(255,255,255,0.3); font-size: 18px; }
+
+        /* লোডিং এনিমেশন */
+        #loader { text-align: center; padding: 50px; color: #708499; }
+
+        .lb-card:active { transform: scale(0.97); background: #24313f; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <a href="profile.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <h2 style="margin: 0;">Top Leaderboard</h2>
+        <h2>TrustOrScam</h2>
     </div>
 
-    <div id="lList">লোড হচ্ছে...</div>
+    <div class="container">
+        <div class="lb-title">
+            <i class="fas fa-trophy" style="color: var(--gold);"></i> Leaderboard
+        </div>
+
+        <div id="lList">
+            <div id="loader"><i class="fas fa-spinner fa-spin"></i> র‍্যাঙ্কিং লোড হচ্ছে...</div>
+        </div>
+    </div>
 
     <script>
         const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
         const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        async function load() {
-            const { data } = await _supabase.from('posts').select('*').eq('type', 'trust').order('upvotes', { ascending: false });
-            let html = "";
-            data.forEach((item, i) => {
-                html += `
-                    <a href="https://t.me/${item.tg_id.replace('@','')}" class="l-card">
-                        <div class="rank">${i+1}</div>
-                        <img class="l-img" src="${item.image_url || 'https://ui-avatars.com/api/?name='+item.name}">
-                        <div class="l-info">
-                            <b>${item.name}</b>
-                            <span>${item.upvotes || 0} Up Ratings</span>
-                        </div>
-                        <i class="fab fa-telegram-plane" style="color:#3390ec"></i>
-                    </a>`;
-            });
-            document.getElementById('lList').innerHTML = html || "No Data";
+        async function fetchLeaderboard() {
+            const { data, error } = await _supabase
+                .from('posts')
+                .select('*')
+                .eq('type', 'trust')
+                .order('upvotes', { ascending: false })
+                .limit(20);
+
+            if (data) {
+                let html = "";
+                data.forEach((item, index) => {
+                    const rank = index + 1;
+                    const rankClass = rank === 1 ? 'rank-1' : (rank === 2 ? 'rank-2' : (rank === 3 ? 'rank-3' : ''));
+                    const profileLink = `https://t.me/${item.tg_id.replace('@','')}`;
+                    
+                    html += `
+                        <a href="${profileLink}" target="_blank" class="lb-card ${rankClass}">
+                            <div class="rank-badge">#${rank}</div>
+                            <img class="user-img" src="${item.image_url || 'https://ui-avatars.com/api/?name='+item.name}" onerror="this.src='https://ui-avatars.com/api/?background=random&name=${item.name}'">
+                            <div class="user-info">
+                                <b>${rank === 1 ? '<i class="fas fa-crown crown"></i> ' : ''}${item.name}</b>
+                                <span>${item.upvotes || 0} Points</span>
+                            </div>
+                            <div class="tg-icon"><i class="fab fa-telegram-plane"></i></div>
+                        </a>
+                    `;
+                });
+                document.getElementById('lList').innerHTML = html || "<p style='text-align:center;'>কোনো ডাটা পাওয়া যায়নি</p>";
+            }
         }
-        load();
+
+        fetchLeaderboard();
+        window.Telegram.WebApp.expand();
     </script>
 </body>
 </html>
