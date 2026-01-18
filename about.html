@@ -2,46 +2,129 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>About - TrustOrScam Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --tg-bg: #0e1621; --tg-secondary: #17212b; --primary: #3390ec; --danger: #ff595a; }
+        * { box-sizing: border-box; transition: 0.3s; }
         body { font-family: -apple-system, sans-serif; background: var(--tg-bg); color: white; margin: 0; padding: 20px; padding-bottom: 80px; }
         
-        .about-section { background: var(--tg-secondary); border-radius: 20px; padding: 20px; margin-bottom: 20px; border-left: 4px solid var(--primary); }
+        /* Header & Language Switcher */
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .back-nav { display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: bold; cursor: pointer; text-decoration: none; }
+        
+        .lang-switch {
+            background: var(--tg-secondary);
+            padding: 5px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--primary);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .lang-switch i { color: var(--primary); }
+
+        .about-section { background: var(--tg-secondary); border-radius: 20px; padding: 20px; margin-bottom: 20px; border-left: 4px solid var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .about-section h3 { margin-top: 0; color: var(--primary); display: flex; align-items: center; gap: 10px; font-size: 18px; }
         .about-section p { font-size: 14px; line-height: 1.6; color: #b1b1b1; }
         
-        .rule-item { display: flex; gap: 10px; margin-bottom: 12px; font-size: 14px; line-height: 1.4; }
+        .rule-item { display: flex; gap: 10px; margin-bottom: 12px; font-size: 14px; line-height: 1.4; color: #e0e0e0; }
         .rule-item i { color: #4caf50; margin-top: 3px; }
 
-        .back-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: var(--primary); font-weight: bold; cursor: pointer; }
+        /* Animation for text change */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div class="back-nav" onclick="window.location.href='index.html'">
-        <i class="fas fa-arrow-left"></i> ফিরে যান
+    <div class="header-row">
+        <a href="index.html" class="back-nav">
+            <i class="fas fa-arrow-left"></i> <span id="backTxt">ফিরে যান</span>
+        </a>
+        <div class="lang-switch" onclick="toggleLang()">
+            <i class="fas fa-globe"></i>
+            <span id="langLabel">English</span>
+        </div>
     </div>
 
     <div class="about-section">
-        <h3><i class="fas fa-shield-alt"></i> আমাদের লক্ষ্য</h3>
-        <p>অনলাইন লেনদেনের ক্ষেত্রে প্রতারণা কমিয়ে একটি নিরাপদ কমিউনিটি তৈরি করাই আমাদের মূল লক্ষ্য। এখানে আপনি বিশ্বস্ত মানুষদের খুঁজে পাবেন এবং প্রতারকদের সম্পর্কে অন্যকে সতর্ক করতে পারবেন।</p>
+        <h3 id="goalTitle"><i class="fas fa-shield-alt"></i> আমাদের লক্ষ্য</h3>
+        <p id="goalDesc">অনলাইন লেনদেনের ক্ষেত্রে প্রতারণা কমিয়ে একটি নিরাপদ কমিউনিটি তৈরি করাই আমাদের মূল লক্ষ্য। এখানে আপনি বিশ্বস্ত মানুষদের খুঁজে পাবেন এবং প্রতারকদের সম্পর্কে অন্যকে সতর্ক করতে পারবেন।</p>
     </div>
 
     <div class="about-section" style="border-left-color: #4caf50;">
-        <h3><i class="fas fa-check-circle"></i> ব্যবহারের নিয়ম</h3>
-        <div class="rule-item"><i class="fas fa-check"></i> যেকোনো লেনদেনের আগে আইডিটি অবশ্যই সার্চ করে দেখুন।</div>
-        <div class="rule-item"><i class="fas fa-check"></i> রিপোর্ট করার সময় সঠিক প্রমাণ ও তথ্য প্রদান করুন।</div>
-        <div class="rule-item"><i class="fas fa-check"></i> ভুল বা ফেক রিপোর্ট করলে নিজের আইডি ব্যান হওয়ার সম্ভাবনা থাকে।</div>
-        <div class="rule-item" style="color: var(--danger);"><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> মনে রাখবেন: এই অ্যাপের তথ্যগুলো ইউজারদের মতামতের ওপর ভিত্তি করে দেওয়া, তাই চূড়ান্ত লেনদেনের দায়িত্ব আপনার।</div>
+        <h3 id="ruleTitle"><i class="fas fa-check-circle"></i> ব্যবহারের নিয়ম</h3>
+        <div class="rule-item"><i class="fas fa-check"></i> <span id="r1">যেকোনো লেনদেনের আগে আইডিটি অবশ্যই সার্চ করে দেখুন।</span></div>
+        <div class="rule-item"><i class="fas fa-check"></i> <span id="r2">রিপোর্ট করার সময় সঠিক প্রমাণ ও তথ্য প্রদান করুন।</span></div>
+        <div class="rule-item"><i class="fas fa-check"></i> <span id="r3">ভুল বা ফেক রিপোর্ট করলে নিজের আইডি ব্যান হওয়ার সম্ভাবনা থাকে।</span></div>
+        <div class="rule-item" style="color: var(--danger);">
+            <i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> 
+            <b id="r4">মনে রাখবেন: এই অ্যাপের তথ্যগুলো ইউজারদের মতামতের ওপর ভিত্তি করে দেওয়া, তাই চূড়ান্ত লেনদেনের দায়িত্ব আপনার।</b>
+        </div>
     </div>
 
     <div class="about-section">
-        <h3><i class="fas fa-envelope"></i> যোগাযোগ</h3>
-        <p>আপনার যদি কোনো অভিযোগ বা বিশেষ কোনো তথ্য থাকে, তবে আমাদের অফিসিয়াল সাপোর্ট চ্যানেলে মেসেজ দিন।</p>
+        <h3 id="contactTitle"><i class="fas fa-envelope"></i> যোগাযোগ</h3>
+        <p id="contactDesc">আপনার যদি কোনো অভিযোগ বা বিশেষ কোনো তথ্য থাকে, তবে আমাদের অফিসিয়াল সাপোর্ট চ্যানেলে মেসেজ দিন।</p>
     </div>
 
+    <script>
+        let currentLang = 'bn';
+
+        const translations = {
+            bn: {
+                backTxt: "ফিরে যান",
+                langLabel: "English",
+                goalTitle: "<i class='fas fa-shield-alt'></i> আমাদের লক্ষ্য",
+                goalDesc: "অনলাইন লেনদেনের ক্ষেত্রে প্রতারণা কমিয়ে একটি নিরাপদ কমিউনিটি তৈরি করাই আমাদের মূল লক্ষ্য। এখানে আপনি বিশ্বস্ত মানুষদের খুঁজে পাবেন এবং প্রতারকদের সম্পর্কে অন্যকে সতর্ক করতে পারবেন।",
+                ruleTitle: "<i class='fas fa-check-circle'></i> ব্যবহারের নিয়ম",
+                r1: "যেকোনো লেনদেনের আগে আইডিটি অবশ্যই সার্চ করে দেখুন।",
+                r2: "রিপোর্ট করার সময় সঠিক প্রমাণ ও তথ্য প্রদান করুন।",
+                r3: "ভুল বা ফেক রিপোর্ট করলে নিজের আইডি ব্যান হওয়ার সম্ভাবনা থাকে।",
+                r4: "মনে রাখবেন: এই অ্যাপের তথ্যগুলো ইউজারদের মতামতের ওপর ভিত্তি করে দেওয়া, তাই চূড়ান্ত লেনদেনের দায়িত্ব আপনার।",
+                contactTitle: "<i class='fas fa-envelope'></i> যোগাযোগ",
+                contactDesc: "আপনার যদি কোনো অভিযোগ বা বিশেষ কোনো তথ্য থাকে, তবে আমাদের অফিসিয়াল সাপোর্ট চ্যানেলে মেসেজ দিন।"
+            },
+            en: {
+                backTxt: "Go Back",
+                langLabel: "বাংলা",
+                goalTitle: "<i class='fas fa-shield-alt'></i> Our Mission",
+                goalDesc: "Our primary goal is to create a safe community by reducing fraud in online transactions. Here you can find trusted individuals and warn others about scammers.",
+                ruleTitle: "<i class='fas fa-check-circle'></i> Usage Rules",
+                r1: "Always search the ID before any transaction.",
+                r2: "Provide accurate evidence and information while reporting.",
+                r3: "Reporting fake info may result in your ID being banned.",
+                r4: "Remember: Information in this app is based on user feedback; final transaction responsibility is yours.",
+                contactTitle: "<i class='fas fa-envelope'></i> Contact",
+                contactDesc: "If you have any complaints or specific information, please message our official support channel."
+            }
+        };
+
+        function toggleLang() {
+            currentLang = (currentLang === 'bn') ? 'en' : 'bn';
+            const content = translations[currentLang];
+
+            // Update elements
+            document.getElementById('backTxt').innerText = content.backTxt;
+            document.getElementById('langLabel').innerText = content.langLabel;
+            document.getElementById('goalTitle').innerHTML = content.goalTitle;
+            document.getElementById('goalDesc').innerText = content.goalDesc;
+            document.getElementById('ruleTitle').innerHTML = content.ruleTitle;
+            document.getElementById('r1').innerText = content.r1;
+            document.getElementById('r2').innerText = content.r2;
+            document.getElementById('r3').innerText = content.r3;
+            document.getElementById('r4').innerText = content.r4;
+            document.getElementById('contactTitle').innerHTML = content.contactTitle;
+            document.getElementById('contactDesc').innerText = content.contactDesc;
+
+            // Add animation
+            document.body.classList.add('fade-in');
+            setTimeout(() => document.body.classList.remove('fade-in'), 500);
+        }
+    </script>
 </body>
 </html>
