@@ -3,126 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Developer Info</title>
+    <title>Developer Info - Animated Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    
     <style>
-        :root { 
-            --bg: #0e1621; 
-            --card-bg: #17212b; 
-            --primary: #3390ec;
-            --premium-blue: #61b1ff; /* Premium Blue for ticks */
-            --gold-star: #ffd700;    /* Gold for stars */
+        :root {
+            --bg: #0e1621;
+            --card-bg: #17212b;
+            --tg-blue: #24A1DE;
+            --premium-gradient: linear-gradient(135deg, #62baff, #24a1de);
         }
-        
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: white; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px 0; }
-        
-        .dev-card-wrapper {
-            width: 90%; 
-            max-width: 380px; 
-            background: var(--card-bg); 
-            border-radius: 25px; 
-            padding: 25px; 
-            text-align: center; 
-            border: 1px solid rgba(51, 144, 236, 0.3); 
-            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+
+        body {
+            font-family: -apple-system, sans-serif;
+            background: var(--bg);
+            color: white;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .premium-card {
+            width: 90%;
+            max-width: 360px;
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 35px 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 15px 45px rgba(0,0,0,0.6);
             position: relative;
-            overflow: hidden;
-            transform: scale(1);
-            transition: transform 0.3s ease;
         }
 
-        .dev-card-wrapper:active { transform: scale(0.98); }
-
-        /* background gradient effect */
-        .dev-card-wrapper::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(from 0deg, rgba(var(--primary), 0.2), transparent 20%, rgba(var(--primary), 0.2), transparent 40%, rgba(var(--primary), 0.2), transparent 60%, rgba(var(--primary), 0.2), transparent 80%, rgba(var(--primary), 0.2));
-            animation: rotateBg 15s linear infinite;
-            z-index: 0;
-            opacity: 0.1;
-        }
-
-        @keyframes rotateBg {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .content-inner { position: relative; z-index: 1; }
-
-        .dev-img-container {
-            width: 120px; 
-            height: 120px; 
-            border-radius: 50%; 
-            border: 4px solid var(--premium-blue); 
-            margin: 0 auto 20px; 
-            overflow: hidden; 
+        /* Profile Image Section */
+        .profile-container {
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 15px;
             position: relative;
-            box-shadow: 0 0 15px rgba(var(--premium-blue), 0.5);
         }
-        .dev-img-container img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .name-section { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; }
-        .name-section h2 { margin: 0; font-size: 24px; font-weight: bold; }
-        .blue-tick { color: var(--premium-blue); font-size: 18px; text-shadow: 0 0 5px rgba(var(--premium-blue),0.7); animation: tickGrow 0.5s ease-out; }
-        .dev-star { color: var(--gold-star); font-size: 18px; text-shadow: 0 0 5px rgba(var(--gold-star),0.7); animation: starFade 1.5s infinite alternate; }
-
-        @keyframes tickGrow { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-        @keyframes starFade { 0% { opacity: 0.8; transform: scale(1); } 100% { opacity: 1; transform: scale(1.1); } }
-
-        .dev-info { color: #708499; font-size: 14px; line-height: 1.4; margin-bottom: 25px; }
-        
-        .social-links { display: flex; justify-content: center; gap: 18px; margin-bottom: 30px; }
-        .social-icon { 
-            width: 50px; height: 50px; 
-            background: rgba(255,255,255,0.08); 
-            border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            color: white; text-decoration: none; font-size: 22px; 
-            transition: 0.3s ease-in-out;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        .profile-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid #24a1de;
+            object-fit: cover;
+            box-shadow: 0 0 15px rgba(36, 161, 222, 0.4);
         }
-        .social-icon:hover { background: var(--primary); transform: translateY(-5px) scale(1.1); box-shadow: 0 5px 20px rgba(var(--primary), 0.5); }
-        
-        .back-btn { 
-            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); 
-            color: white; text-decoration: none; padding: 12px 30px; 
-            border-radius: 15px; font-weight: bold; display: inline-flex; 
-            align-items: center; gap: 8px; font-size: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            transition: 0.2s;
+
+        /* Animated Badges Container */
+        .name-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 5px;
+        }
+        .name-wrapper h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        /* Lottie Badge Sizing */
+        .badge-anim {
+            width: 28px;
+            height: 28px;
+            display: inline-block;
+        }
+
+        .bio {
+            color: #708499;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        /* Glossy Social Icons */
+        .social-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .social-btn:hover {
+            background: var(--premium-gradient);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(36, 161, 222, 0.4);
+        }
+
+        /* Animated Back Button */
+        .back-btn {
+            background: var(--premium-gradient);
+            color: white;
+            text-decoration: none;
+            padding: 15px 45px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(0, 136, 204, 0.3);
+            transition: 0.3s;
         }
         .back-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
-    <div class="dev-card-wrapper">
-        <div class="content-inner">
-            <div class="dev-img-container">
-                <img src="https://i.ibb.co/C0W2wXN/My-img-2.jpg" alt="Md Rony"> </div>
-            
-            <div class="name-section">
-                <h2>Md Rony</h2>
-                <i class="fas fa-check-circle blue-tick"></i> <i class="fas fa-star dev-star"></i> </div>
-            <p class="dev-info">Founder & Lead Developer<br>TrustOrScam Pro Project</p>
-            
-            <div class="social-links">
-                <a href="https://t.me/mdronytop" target="_blank" class="social-icon"><i class="fab fa-telegram-plane"></i></a>
-                <a href="https://facebook.com/mdrony.top" target="_blank" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                <a href="https://instagram.com/mdrony.top" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
-                <a href="https://yourwebsite.com" target="_blank" class="social-icon"><i class="fas fa-globe"></i></a> </div>
-            
-            <a href="profile.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back Now</a>
+    <div class="premium-card">
+        <div class="profile-container">
+            <img src="https://i.ibb.co/C0W2wXN/My-img-2.jpg" class="profile-img" alt="Md Rony">
         </div>
+
+        <div class="name-wrapper">
+            <h2>Md Rony</h2>
+            
+            <div class="badge-anim">
+                <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_6p8ovm7e.json" background="transparent" speed="1" loop autoplay></lottie-player>
+            </div>
+            
+            <div class="badge-anim">
+                <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_at6m5f.json" background="transparent" speed="1.2" loop autoplay></lottie-player>
+            </div>
+        </div>
+
+        <p class="bio">Founder & Lead Developer<br>TrustOrScam Pro Project</p>
+
+        <div class="social-row">
+            <a href="https://t.me/mdronytop" class="social-btn"><i class="fab fa-telegram-plane"></i></a>
+            <a href="https://facebook.com/mdrony.top" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://instagram.com/mdrony.top" class="social-btn"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-btn"><i class="fas fa-globe"></i></a>
+        </div>
+
+        <a href="profile.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back Now
+        </a>
     </div>
 
-    <script>window.Telegram.WebApp.expand();</script>
+    <script>
+        window.Telegram.WebApp.expand();
+    </script>
 </body>
 </html>
