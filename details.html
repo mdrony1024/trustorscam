@@ -8,38 +8,42 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0e1621; --card: #17212b; --trust: #3390ec; --scam: #ff595a; --dim: #708499; }
-        body { background: var(--bg); color: white; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 15px; }
+        :root { --bg: #0e1621; --card: #17212b; --trust: #3390ec; --scam: #ff595a; --dim: #708499; --success: #4caf50; }
+        body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; margin: 0; padding: 15px; }
         .back-btn { color: var(--trust); text-decoration: none; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-weight: bold; font-size: 16px; width: fit-content; }
         
-        .detail-card { background: var(--card); border-radius: 25px; padding: 30px 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .detail-card { background: var(--card); border-radius: 25px; padding: 30px 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative; }
         
-        .img-container { width: 130px; height: 130px; margin: 0 auto 15px; position: relative; }
-        .detail-img { width: 100%; height: 100%; border-radius: 35px; object-fit: cover; border: 3px solid rgba(255,255,255,0.1); background: #242f3d; }
+        .img-container { width: 120px; height: 120px; margin: 0 auto 15px; }
+        .detail-img { width: 100%; height: 100%; border-radius: 30px; object-fit: cover; border: 3px solid rgba(255,255,255,0.1); }
         
-        .name-area { font-size: 24px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 10px 0; }
-        .blue-tick { color: #00a2ff; font-size: 20px; }
+        /* নাম এবং ব্যাজ স্টাইল */
+        .name-area { font-size: 22px; font-weight: 800; margin: 10px 0; display: block; }
+        .badge { font-size: 12px; padding: 4px 10px; border-radius: 8px; font-weight: bold; text-transform: uppercase; margin-top: 8px; display: inline-block; vertical-align: middle; }
+        .badge-trust { background: rgba(51, 144, 236, 0.2); color: var(--trust); border: 1px solid var(--trust); }
+        .badge-scam { background: rgba(255, 89, 90, 0.2); color: var(--scam); border: 1px solid var(--scam); }
 
-        /* রেটিং বাটন স্টাইল */
+        /* ভোট বাটন স্টাইল */
         .rating-box { margin: 25px 0; display: flex; justify-content: center; }
         .vote-btn { 
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            padding: 18px 50px; border-radius: 22px; cursor: pointer; transition: 0.3s;
-            display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 140px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 40px; border-radius: 20px; cursor: pointer; transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
         }
-        .vote-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.08); }
-        .vote-btn i { font-size: 32px; }
-        .vote-count { font-size: 20px; font-weight: bold; }
-        .vote-label { font-size: 11px; text-transform: uppercase; color: var(--dim); letter-spacing: 1px; font-weight: bold; }
+        .vote-btn.active-up { background: var(--trust) !important; color: white !important; border-color: var(--trust); }
+        .vote-btn.active-down { background: var(--scam) !important; color: white !important; border-color: var(--scam); }
+        .vote-btn i { font-size: 28px; }
+        .vote-count { font-size: 18px; font-weight: bold; }
+        .vote-label { font-size: 10px; text-transform: uppercase; color: var(--dim); font-weight: bold; }
+        .vote-btn[class*="active"] .vote-label { color: rgba(255,255,255,0.8); }
 
-        .info-grid { text-align: left; margin-top: 30px; display: grid; gap: 12px; }
+        .info-grid { text-align: left; margin-top: 25px; display: grid; gap: 12px; }
         .info-item { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .label { color: var(--dim); font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-        .value { display: block; margin-top: 6px; font-size: 15px; font-weight: 600; color: #efefef; word-break: break-all; }
+        .label { color: var(--dim); font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .value { display: block; margin-top: 6px; font-size: 15px; font-weight: 600; color: #efefef; }
         
         .evidence-desc { color: #b1b1b1; font-size: 14px; line-height: 1.6; margin: 8px 0; white-space: pre-wrap; }
-        .ss-link { display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(51,144,236,0.1); color: var(--trust); padding: 14px; border-radius: 12px; text-decoration: none; margin-top: 12px; font-weight: bold; border: 1px solid rgba(51,144,236,0.2); transition: 0.2s; }
-        .ss-link:active { background: rgba(51,144,236,0.2); }
+        .ss-link { display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(51,144,236,0.1); color: var(--trust); padding: 12px; border-radius: 12px; text-decoration: none; margin-top: 10px; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -48,49 +52,57 @@
     
     <div id="detailsArea">
         <div style="text-align: center; margin-top: 100px; color: var(--dim);">
-            <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Loading Details...
+            <i class="fas fa-circle-notch fa-spin fa-2x"></i><br><br>Loading Details...
         </div>
     </div>
 
     <script>
-        // আপনার সুপাবেস ক্রেডেনশিয়ালস
         const SB_URL = "https://detrmszrwyolybdecqxn.supabase.co"; 
         const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
         const tg = window.Telegram.WebApp;
+        const user = tg.initDataUnsafe.user;
 
         async function loadDetails() {
             const postId = localStorage.getItem('view_post_id');
             if(!postId) return;
 
-            const { data: post, error } = await _supabase.from('posts').select('*').eq('id', postId).single();
+            // পোস্ট ডাটা এবং ইউজারের আগের ভোট চেক করা
+            const { data: post } = await _supabase.from('posts').select('*').eq('id', postId).single();
+            let userVote = null;
+            
+            if(user) {
+                const { data: voteData } = await _supabase.from('votes').select('type').eq('post_id', postId).eq('user_id', user.id.toString()).single();
+                userVote = voteData ? voteData.type : null;
+            }
             
             if(post) {
                 const isTrust = post.type === 'trust';
+                const badgeClass = isTrust ? 'badge-trust' : 'badge-scam';
+                const badgeText = isTrust ? '[Trusted]' : '[Scammer]';
                 
-                // স্ক্রিনশট লিংক রেন্ডারিং
                 let ssHtml = "";
                 if(post.image_url && post.image_url.includes('http')) {
-                    const links = post.image_url.split('\n');
+                    const links = post.image_url.split(',');
                     links.forEach((l, i) => {
-                        if(l.trim()) ssHtml += `<a href="${l.trim()}" target="_blank" class="ss-link"><i class="fas fa-external-link-alt"></i> View Screenshot ${links.length > 1 ? i+1 : ''}</a>`;
+                        if(l.trim()) ssHtml += `<a href="${l.trim()}" target="_blank" class="ss-link"><i class="fas fa-image"></i> View Screenshot ${links.length > 1 ? i+1 : ''}</a>`;
                     });
                 }
 
-                // রেটিং সেকশন লজিক
+                // রেটিং লজিক (Toggle State সহ)
                 const ratingHtml = isTrust ? `
                     <div class="rating-box">
-                        <div class="vote-btn" onclick="handleVote('up')" style="color: var(--trust)">
-                            <i class="fas fa-arrow-alt-circle-up"></i>
-                            <span class="vote-count" id="up-cnt">${post.upvotes || 0}</span>
+                        <div class="vote-btn ${userVote === 'up' ? 'active-up' : ''}" onclick="toggleVote(${post.id}, 'up')" style="color: var(--trust)">
+                            <i class="fas fa-arrow-up"></i>
+                            <span class="vote-count">${post.upvotes || 0}</span>
                             <span class="vote-label">Up Rating</span>
                         </div>
                     </div>
                 ` : `
                     <div class="rating-box">
-                        <div class="vote-btn" onclick="handleVote('down')" style="color: var(--scam)">
-                            <i class="fas fa-arrow-alt-circle-down"></i>
-                            <span class="vote-count" id="down-cnt">${post.downvotes || 0}</span>
+                        <div class="vote-btn ${userVote === 'down' ? 'active-down' : ''}" onclick="toggleVote(${post.id}, 'down')" style="color: var(--scam)">
+                            <i class="fas fa-arrow-down"></i>
+                            <span class="vote-count">${post.downvotes || 0}</span>
                             <span class="vote-label">Down Rating</span>
                         </div>
                     </div>
@@ -99,67 +111,48 @@
                 document.getElementById('detailsArea').innerHTML = `
                     <div class="detail-card">
                         <div class="img-container">
-                            <img class="detail-img" src="${post.image_url && !post.image_url.includes('\n') ? post.image_url : 'https://ui-avatars.com/api/?name='+post.name+'&background=random&color=fff&size=128'}" onerror="this.src='https://ui-avatars.com/api/?name=${post.name}'">
+                            <img class="detail-img" src="${post.image_url && post.image_url.startsWith('http') && !post.image_url.includes(',') ? post.image_url : 'https://ui-avatars.com/api/?name='+post.name+'&background=random&color=fff&size=128'}" onerror="this.src='https://ui-avatars.com/api/?name=${post.name}'">
                         </div>
                         
                         <div class="name-area">
                             ${post.name} 
-                            ${isTrust ? '<i class="fas fa-check-circle blue-tick" title="Verified"></i>' : ''}
+                            ${isTrust ? '<i class="fas fa-check-circle" style="color:#00a2ff; font-size:18px;"></i>' : ''}
+                            <br><span class="badge ${badgeClass}">${badgeText}</span>
                         </div>
                         
                         ${ratingHtml}
 
                         <div class="info-grid">
+                            <div class="info-item"><span class="label">Telegram ID</span><span class="value">${post.tg_id}</span></div>
+                            <div class="info-item"><span class="label">Payment Info</span><span class="value">${post.contact || 'N/A'}</span></div>
                             <div class="info-item">
-                                <span class="label">Telegram ID / Username</span>
-                                <span class="value">${post.tg_id}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="label">Contact / Payment Details</span>
-                                <span class="value">${post.contact || 'No info provided'}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="label">Details & Evidence</span>
-                                <div class="evidence-desc">${post.details || 'No additional information available.'}</div>
+                                <span class="label">Details</span>
+                                <div class="evidence-desc">${post.details || 'No description.'}</div>
                                 ${ssHtml}
                             </div>
                         </div>
                     </div>
                 `;
-            } else {
-                document.getElementById('detailsArea').innerHTML = "<p style='text-align:center;'>Post not found.</p>";
             }
         }
 
-        async function handleVote(type) {
-            // আইডিকে নাম্বারে রূপান্তর (BigInt Error সমাধান)
-            const postId = parseInt(localStorage.getItem('view_post_id'));
-            const user = tg.initDataUnsafe.user;
-            
-            if (!user) {
-                alert("Please use Telegram App to vote.");
-                return;
-            }
+        async function toggleVote(postId, type) {
+            if (!user) { alert("Please use Telegram App."); return; }
 
-            if(isNaN(postId)) return;
-
-            // সুপাবেস RPC কল
-            const { error } = await _supabase.rpc('handle_single_vote', { 
-                p_post_id: postId, 
+            // টগল ভোট লজিক (RPC ব্যবহার করা হয়েছে)
+            const { data, error } = await _supabase.rpc('toggle_post_vote', { 
+                p_post_id: parseInt(postId), 
                 p_user_id: user.id.toString(), 
                 p_type: type 
             });
 
             if (error) {
-                // যদি ইউজার অলরেডি ভোট দিয়ে থাকে
-                alert("You have already cast your vote.");
+                alert("Error: " + error.message);
             } else {
-                alert("Your vote has been submitted successfully!");
                 loadDetails(); // ডাটা রিফ্রেশ
             }
         }
 
-        // পেজ লোড স্টার্ট
         loadDetails();
         tg.expand();
     </script>
