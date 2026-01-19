@@ -79,7 +79,7 @@
             if(post) {
                 const isTrust = post.type === 'trust';
                 const badgeClass = isTrust ? 'badge-trust' : 'badge-scam';
-                const badgeText = isTrust ? '[Trusted]' : '[Scammer]';
+                const badgeText = isTrust ? 'Trusted' : 'Scammer';
                 
                 let ssHtml = "";
                 if(post.image_url && post.image_url.includes('http')) {
