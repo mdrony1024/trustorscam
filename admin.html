@@ -12,31 +12,52 @@
         
         .navbar { background: var(--card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 1000; }
         
-        /* Stats Dashboard Styles */
-        .stats-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 15px; max-width: 600px; margin: auto; }
-        .stat-card { background: var(--card); padding: 12px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .stat-card i { font-size: 1.2rem; margin-bottom: 5px; opacity: 0.8; }
-        .stat-val { display: block; font-size: 1.1rem; font-weight: bold; color: var(--primary); }
-        .stat-label { font-size: 0.65rem; color: #708499; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* User Count Header */
+        .user-stats-bar { background: rgba(51, 144, 236, 0.1); padding: 10px; text-align: center; font-size: 0.9rem; color: var(--primary); font-weight: bold; border-bottom: 1px solid rgba(51, 144, 236, 0.2); }
 
         .tab-bar { display: flex; background: var(--card); border-bottom: 1px solid rgba(255,255,255,0.05); overflow-x: auto; }
         .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #708499; font-weight: bold; cursor: pointer; white-space: nowrap; }
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
         
         .container { padding: 15px; max-width: 600px; margin: auto; }
-        .post-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 4px solid var(--warning); cursor: pointer; transition: 0.2s; }
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .modal-content { background: var(--card); padding: 25px; border-radius: 15px; width: 100%; max-width: 500px; position: relative; max-height: 85vh; overflow-y: auto; }
+        .section-title { margin: 20px 0 10px 0; color: #708499; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+        
+        .filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .filter-chip { background: #242f3d; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); color: #708499; }
+        .filter-chip.active { background: var(--primary); color: white; }
+
+        .post-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 4px solid var(--warning); cursor: pointer; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 15px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; }
         
         textarea, input, select { width: 100%; background: var(--bg); border: 1px solid #242f3d; color: white; padding: 12px; border-radius: 10px; margin-top: 8px; box-sizing: border-box; outline: none; }
-        .btn { border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; width: 100%; }
-        .btn-blue { background: var(--primary); }
+        .btn { border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
+        .btn-blue { background: var(--primary); width: 100%; }
+        .notice-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--primary); }
         #loginBox { background: var(--card); margin: 100px auto; padding: 30px; border-radius: 20px; max-width: 350px; text-align: center; }
-        .filter-chip { background: #242f3d; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; color: #708499; display: inline-block; margin-right: 5px; }
-        .filter-chip.active { background: var(--primary); color: white; }
+        .close-btn { background: #242f3d; color: white; border: none; padding: 10px; width: 100%; border-radius: 10px; margin-top: 15px; cursor: pointer; }
     </style>
 </head>
 <body>
+
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <h3 id="mTitle" style="margin-top:0; color:var(--primary);">Report Details</h3>
+            <div id="mBody" style="font-size: 0.95rem; line-height: 1.5; color: #b1b1b1;"></div>
+            <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top:15px;">
+                <label>Action:</label>
+                <select id="mAction">
+                    <option value="">-- Choose action --</option>
+                    <option value="approved">Approve</option>
+                    <option value="rejected">Reject</option>
+                    <option value="pending">Pending</option>
+                    <option value="delete">Delete Permanently</option>
+                </select>
+                <button class="btn btn-blue" onclick="applyModalAction()">Update Post</button>
+                <button class="close-btn" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
 
     <div id="loginBox">
         <i class="fas fa-user-shield fa-3x" style="color: var(--primary); margin-bottom: 15px;"></i>
@@ -47,63 +68,73 @@
     </div>
 
     <div id="adminContent" style="display: none;">
-        <div class="navbar">
-            <h2 style="margin:0; font-size: 1.1rem;">Admin Panel</h2>
-            <button onclick="logout()" style="background:none; border:none; color:var(--danger);"><i class="fas fa-power-off"></i></button>
+        <div class="user-stats-bar">
+            <i class="fas fa-users"></i> Total Bot Users: <span id="total-users-count">0</span>
         </div>
-
-        <div class="stats-container">
-            <div class="stat-card">
-                <i class="fas fa-users" style="color:var(--primary)"></i>
-                <span class="stat-val" id="stat-total-users">0</span>
-                <span class="stat-label">Total Users</span>
-            </div>
-            <div class="stat-card">
-                <i class="fas fa-check-circle" style="color:var(--success)"></i>
-                <span class="stat-val" id="stat-total-trust">0</span>
-                <span class="stat-label">Trusted</span>
-            </div>
-            <div class="stat-card">
-                <i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i>
-                <span class="stat-val" id="stat-total-scam">0</span>
-                <span class="stat-label">Scammers</span>
-            </div>
+        <div class="navbar">
+            <h2 style="margin:0; font-size: 1.2rem;">Control Panel</h2>
+            <button onclick="logout()" style="background:none; border:none; color:var(--danger); font-size: 1.2rem;"><i class="fas fa-power-off"></i></button>
         </div>
 
         <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab('reports', this)">Reports</button>
-            <button class="tab-btn" onclick="switchTab('system', this)">System</button>
-            <button class="tab-btn" onclick="switchTab('mods', this)">Mods</button>
+            <button class="tab-btn" onclick="switchTab('system', this)">System & Notices</button>
+            <button class="tab-btn" onclick="switchTab('mods', this)">Moderators</button>
         </div>
 
         <div class="container">
             <div id="reportsTab">
-                <input type="text" id="adminSearch" placeholder="Search ID or Name..." oninput="loadPosts()" style="margin-bottom: 15px;">
-                <div style="margin-bottom:15px; overflow-x:auto; white-space:nowrap;">
-                    <div class="filter-chip active" onclick="filterData('pending', this)">Pending</div>
-                    <div class="filter-chip" onclick="filterData('approved', this)">Approved</div>
-                    <div class="filter-chip" onclick="filterData('rejected', this)">Rejected</div>
+                <input type="text" id="adminSearch" placeholder="Search by ID, Name..." oninput="loadAllPosts()" style="margin-bottom: 15px;">
+                
+                <div class="section-title"><i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i> Scam Reports</div>
+                <div class="filters">
+                    <div class="filter-chip active" id="scam-pending" onclick="setFilter('scam', 'pending')">Pending</div>
+                    <div class="filter-chip" id="scam-approved" onclick="setFilter('scam', 'approved')">Approved</div>
+                    <div class="filter-chip" id="scam-rejected" onclick="setFilter('scam', 'rejected')">Rejected</div>
                 </div>
-                <div id="reportList"></div>
-            </div>
-            
-            <div id="systemTab" style="display: none;">
-                </div>
-        </div>
-    </div>
+                <div id="scamList"></div>
 
-    <div id="detailModal" class="modal">
-        <div class="modal-content">
-            <h3 id="mTitle" style="margin:0; color:var(--primary);">Details</h3>
-            <div id="mBody" style="margin-top:15px; font-size:0.9rem; color:#b1b1b1;"></div>
-            <select id="mAction">
-                <option value="">-- Change Status --</option>
-                <option value="approved">Approve</option>
-                <option value="rejected">Reject</option>
-                <option value="delete">Delete Permanently</option>
-            </select>
-            <button class="btn btn-blue" onclick="applyModalAction()">Update Now</button>
-            <button class="btn" style="background:#242f3d;" onclick="closeModal()">Close</button>
+                <hr style="border:0; border-top:1px solid rgba(255,255,255,0.05); margin:25px 0;">
+
+                <div class="section-title"><i class="fas fa-check-circle" style="color:var(--success)"></i> Trust Reports</div>
+                <div class="filters">
+                    <div class="filter-chip active" id="trust-pending" onclick="setFilter('trust', 'pending')">Pending</div>
+                    <div class="filter-chip" id="trust-approved" onclick="setFilter('trust', 'approved')">Approved</div>
+                    <div class="filter-chip" id="trust-rejected" onclick="setFilter('trust', 'rejected')">Rejected</div>
+                </div>
+                <div id="trustList"></div>
+            </div>
+
+            <div id="systemTab" style="display: none;">
+                <div class="notice-card" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>User Reporting System</span>
+                    <button id="reportToggleBtn" class="btn" style="margin-top:0; min-width:80px;" onclick="toggleStatus()">Wait...</button>
+                </div>
+                <div class="notice-card">
+                    <h4 style="margin:0; color:var(--primary);">Top Notice (Blue)</h4>
+                    <textarea id="top_notice_text" rows="2"></textarea>
+                    <button class="btn btn-blue" onclick="saveNotice('top_notice')">Update Top Notice</button>
+                </div>
+                <div class="notice-card" style="border-left-color: var(--danger);">
+                    <h4 style="margin:0; color:var(--danger);">Scam Alert (Red)</h4>
+                    <textarea id="scam_alert_text" rows="2"></textarea>
+                    <button class="btn" style="background:var(--danger); width:100%;" onclick="saveNotice('scam_alert')">Update Scam Alert</button>
+                </div>
+                <div class="notice-card" style="border-left-color: var(--warning);">
+                    <h4 style="margin:0; color:var(--warning);">Broadcast to Telegram</h4>
+                    <textarea id="bot_msg" placeholder="Write message..."></textarea>
+                    <button class="btn" style="background:var(--warning); width:100%;" onclick="sendToBot()">Send Message</button>
+                </div>
+            </div>
+
+            <div id="modsTab" style="display: none;">
+                <div class="notice-card" style="border-left-color: var(--success);">
+                    <h4 style="margin:0; color:var(--success);">Create Moderator</h4>
+                    <input type="email" id="mEmail" placeholder="Email">
+                    <input type="password" id="mPass" placeholder="Password">
+                    <button class="btn" style="background:var(--success); width:100%;" onclick="addMod()">Register Mod</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -112,80 +143,125 @@
         const SB_KEY = "sb_publishable_mi0X-fBPpa1-EPd8AkEdgQ_n3d4nr2F"; 
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        let currentFilter = 'pending';
+        let scamFilter = 'pending';
+        let trustFilter = 'pending';
+        let selectedReportId = null;
 
         async function checkUser() {
             const { data: { user } } = await _sb.auth.getUser();
             if (user) {
                 document.getElementById('loginBox').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
-                loadDashboardStats(); // ড্যাশবোর্ড স্ট্যাটাস লোড
-                loadPosts();
+                loadUserCount();
+                loadAllPosts(); 
+                loadSettings();
             }
         }
 
-        // টোটাল ইউজার এবং আলাদা আলাদা রিপোর্ট সংখ্যা বের করা
-        async function loadDashboardStats() {
-            // ১. টোটাল টেলিগ্রাম ইউজার (bot_users টেবিল থেকে)
-            const { count: users } = await _sb.from('bot_users').select('*', { count: 'exact', head: true });
-            
-            // ২. টোটাল ট্রাস্টেড আইডি (approved এবং type=trust)
-            const { count: trust } = await _sb.from('posts').select('*', { count: 'exact', head: true })
-                                      .eq('status', 'approved').eq('type', 'trust');
-            
-            // ৩. টোটাল স্ক্যামার আইডি (approved এবং type=scam)
-            const { count: scam } = await _sb.from('posts').select('*', { count: 'exact', head: true })
-                                     .eq('status', 'approved').eq('type', 'scam');
-
-            document.getElementById('stat-total-users').innerText = users || 0;
-            document.getElementById('stat-total-trust').innerText = trust || 0;
-            document.getElementById('stat-total-scam').innerText = scam || 0;
+        async function loadUserCount() {
+            const { count } = await _sb.from('bot_users').select('*', { count: 'exact', head: true });
+            document.getElementById('total-users-count').innerText = count || 0;
         }
 
-        async function loadPosts() {
+        function setFilter(type, status) {
+            if(type === 'scam') {
+                scamFilter = status;
+                document.querySelectorAll('#reportsTab .filters:nth-of-type(1) .filter-chip').forEach(c => c.classList.remove('active'));
+                document.getElementById(`scam-${status}`).classList.add('active');
+            } else {
+                trustFilter = status;
+                document.querySelectorAll('#reportsTab .filters:nth-of-type(2) .filter-chip').forEach(c => c.classList.remove('active'));
+                document.getElementById(`trust-${status}`).classList.add('active');
+            }
+            loadAllPosts();
+        }
+
+        async function loadAllPosts() {
             const q = document.getElementById('adminSearch').value.toLowerCase();
-            const { data } = await _sb.from('posts').select('*').eq('status', currentFilter).order('created_at', {ascending: false});
             
-            let list = document.getElementById('reportList');
+            // Load Scam Posts
+            const { data: scams } = await _sb.from('posts').select('*').eq('type', 'scam').eq('status', scamFilter).order('created_at', {ascending: false});
+            renderList('scamList', scams, q, 'var(--danger)');
+
+            // Load Trust Posts
+            const { data: trusts } = await _sb.from('posts').select('*').eq('type', 'trust').eq('status', trustFilter).order('created_at', {ascending: false});
+            renderList('trustList', trusts, q, 'var(--success)');
+        }
+
+        function renderList(elementId, data, query, borderColor) {
+            const list = document.getElementById(elementId);
             list.innerHTML = '';
+            if(!data || data.length === 0) { list.innerHTML = '<div style="color:#708499; font-size:0.8rem; text-align:center; padding:10px;">No records found</div>'; return; }
             
-            data?.filter(p => p.tg_id.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)).forEach(p => {
+            data.filter(p => p.tg_id.toLowerCase().includes(query) || p.name.toLowerCase().includes(query)).forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'post-card';
-                // টাইপ অনুযায়ী বর্ডারের রঙ পরিবর্তন
-                card.style.borderLeftColor = p.type === 'trust' ? 'var(--success)' : 'var(--danger)';
-                
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between;">
-                        <strong>${p.name}</strong>
-                        <span style="font-size:0.65rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">${p.type.toUpperCase()}</span>
-                    </div>
-                    <div style="font-size:0.8rem; color:#708499; margin-top:5px;">ID: ${p.tg_id}</div>
-                `;
+                card.style.borderLeftColor = borderColor;
+                card.innerHTML = `<strong>${p.name}</strong><br><span style="font-size:0.8rem; color:#708499;">ID: ${p.tg_id}</span>`;
                 card.onclick = () => openModal(p);
                 list.appendChild(card);
             });
         }
 
-        // বাকি ফাংশনগুলো (login, switchTab, modal logic) আগের মতোই কাজ করবে
+        // --- All Other Original Functions (Login, Modal, Settings, SaveNotice, SendToBot) ---
+        // (আমি আপনার আগের সব ফাংশন ঠিক সেভাবেই রেখেছি যাতে কোনো ফিচার নষ্ট না হয়)
+
+        function openModal(p) {
+            selectedReportId = p.id;
+            document.getElementById('mTitle').innerText = p.name;
+            document.getElementById('mBody').innerHTML = `<b>Type:</b> ${p.type.toUpperCase()}<br><b>IDs:</b> ${p.tg_id}<br><b>Details:</b> ${p.details || 'N/A'}`;
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+
+        async function applyModalAction() {
+            const act = document.getElementById('mAction').value;
+            if(!act) return;
+            if(act === 'delete') await _sb.from('posts').delete().eq('id', selectedReportId);
+            else await _sb.from('posts').update({ status: act }).eq('id', selectedReportId);
+            closeModal(); loadAllPosts();
+        }
+
         async function login() {
             const e = document.getElementById('email').value;
             const p = document.getElementById('password').value;
             const { error } = await _sb.auth.signInWithPassword({ email: e, password: p });
             if (error) alert(error.message); else checkUser();
         }
-
-        function filterData(s, b) {
-            currentFilter = s;
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            b.classList.add('active');
-            loadPosts();
-        }
+        async function logout() { await _sb.auth.signOut(); location.reload(); }
 
         function switchTab(t, b) {
             document.getElementById('reportsTab').style.display = t === 'reports' ? 'block' : 'none';
+            document.getElementById('systemTab').style.display = t === 'system' ? 'block' : 'none';
+            document.getElementById('modsTab').style.display = t === 'mods' ? 'block' : 'none';
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             b.classList.add('active');
+        }
+
+        async function loadSettings() {
+            const { data } = await _sb.from('settings').select('*');
+            data?.forEach(s => {
+                if(s.id === 'report_status') {
+                    const b = document.getElementById('reportToggleBtn');
+                    b.innerText = s.content === 'on' ? 'ON' : 'OFF';
+                    b.style.background = s.content === 'on' ? 'var(--success)' : 'var(--danger)';
+                }
+                const inputField = document.getElementById(s.id + '_text');
+                if(inputField) inputField.value = s.content;
+            });
+        }
+
+        async function toggleStatus() {
+            const b = document.getElementById('reportToggleBtn');
+            const nextVal = b.innerText === 'ON' ? 'off' : 'on';
+            await _sb.from('settings').update({ content: nextVal }).eq('id', 'report_status');
+            loadSettings();
+        }
+
+        async function saveNotice(id) {
+            const val = document.getElementById(id + '_text').value;
+            await _sb.from('settings').update({ content: val }).eq('id', id);
+            alert("Updated!");
         }
 
         checkUser();
