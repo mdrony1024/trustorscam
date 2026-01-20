@@ -17,13 +17,11 @@
         .img-container { width: 120px; height: 120px; margin: 0 auto 15px; }
         .detail-img { width: 100%; height: 100%; border-radius: 30px; object-fit: cover; border: 3px solid rgba(255,255,255,0.1); }
         
-        /* নাম এবং ব্যাজ স্টাইল */
         .name-area { font-size: 22px; font-weight: 800; margin: 10px 0; display: block; }
         .badge { font-size: 12px; padding: 4px 10px; border-radius: 8px; font-weight: bold; text-transform: uppercase; margin-top: 8px; display: inline-block; vertical-align: middle; }
         .badge-trust { background: rgba(51, 144, 236, 0.2); color: var(--trust); border: 1px solid var(--trust); }
         .badge-scam { background: rgba(255, 89, 90, 0.2); color: var(--scam); border: 1px solid var(--scam); }
 
-        /* ভোট বাটন স্টাইল */
         .rating-box { margin: 25px 0; display: flex; justify-content: center; }
         .vote-btn { 
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
@@ -35,7 +33,6 @@
         .vote-btn i { font-size: 28px; }
         .vote-count { font-size: 18px; font-weight: bold; }
         .vote-label { font-size: 10px; text-transform: uppercase; color: var(--dim); font-weight: bold; }
-        .vote-btn[class*="active"] .vote-label { color: rgba(255,255,255,0.8); }
 
         .info-grid { text-align: left; margin-top: 25px; display: grid; gap: 12px; }
         .info-item { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
@@ -67,7 +64,6 @@
             const postId = localStorage.getItem('view_post_id');
             if(!postId) return;
 
-            // পোস্ট ডাটা এবং ইউজারের আগের ভোট চেক করা
             const { data: post } = await _supabase.from('posts').select('*').eq('id', postId).single();
             let userVote = null;
             
@@ -81,15 +77,19 @@
                 const badgeClass = isTrust ? 'badge-trust' : 'badge-scam';
                 const badgeText = isTrust ? 'Trusted' : 'Scammer';
                 
+                // উন্নত স্ক্রিনশট লজিক: কমা, নিউ-লাইন বা স্পেস থাকলে আলাদা করবে
                 let ssHtml = "";
-                if(post.image_url && post.image_url.includes('http')) {
-                    const links = post.image_url.split(',');
+                if(post.image_url) {
+                    const links = post.image_url.split(/[, \n\r]+/).filter(l => l.trim().startsWith('http'));
                     links.forEach((l, i) => {
-                        if(l.trim()) ssHtml += `<a href="${l.trim()}" target="_blank" class="ss-link"><i class="fas fa-image"></i> View Screenshot ${links.length > 1 ? i+1 : ''}</a>`;
+                        ssHtml += `<a href="${l.trim()}" target="_blank" class="ss-link"><i class="fas fa-image"></i> View Screenshot ${links.length > 1 ? i+1 : ''}</a>`;
                     });
                 }
 
-                // রেটিং লজিক (Toggle State সহ)
+                // প্রোফাইল পিকচার লজিক (pfp_link থাকলে সেটা আগে নিবে)
+                const pfp = post.pfp_link || (post.image_url ? post.image_url.split(/[, \n\r]+/)[0] : null);
+                const displayImg = (pfp && pfp.startsWith('http')) ? pfp : `https://ui-avatars.com/api/?name=${post.name}&background=random&color=fff&size=128`;
+
                 const ratingHtml = isTrust ? `
                     <div class="rating-box">
                         <div class="vote-btn ${userVote === 'up' ? 'active-up' : ''}" onclick="toggleVote(${post.id}, 'up')" style="color: var(--trust)">
@@ -111,7 +111,7 @@
                 document.getElementById('detailsArea').innerHTML = `
                     <div class="detail-card">
                         <div class="img-container">
-                            <img class="detail-img" src="${post.image_url && post.image_url.startsWith('http') && !post.image_url.includes(',') ? post.image_url : 'https://ui-avatars.com/api/?name='+post.name+'&background=random&color=fff&size=128'}" onerror="this.src='https://ui-avatars.com/api/?name=${post.name}'">
+                            <img class="detail-img" src="${displayImg}" onerror="this.src='https://ui-avatars.com/api/?name=${post.name}'">
                         </div>
                         
                         <div class="name-area">
@@ -126,8 +126,8 @@
                             <div class="info-item"><span class="label">Telegram ID</span><span class="value">${post.tg_id}</span></div>
                             <div class="info-item"><span class="label">Payment Info</span><span class="value">${post.contact || 'N/A'}</span></div>
                             <div class="info-item">
-                                <span class="label">Details</span>
-                                <div class="evidence-desc">${post.details || 'No description.'}</div>
+                                <span class="label">Details & Evidence</span>
+                                <div class="evidence-desc">${post.details || 'No description provided.'}</div>
                                 ${ssHtml}
                             </div>
                         </div>
@@ -138,19 +138,12 @@
 
         async function toggleVote(postId, type) {
             if (!user) { alert("Please use Telegram App."); return; }
-
-            // টগল ভোট লজিক (RPC ব্যবহার করা হয়েছে)
             const { data, error } = await _supabase.rpc('toggle_post_vote', { 
                 p_post_id: parseInt(postId), 
                 p_user_id: user.id.toString(), 
                 p_type: type 
             });
-
-            if (error) {
-                alert("Error: " + error.message);
-            } else {
-                loadDetails(); // ডাটা রিফ্রেশ
-            }
+            if (error) alert("Error: " + error.message); else loadDetails();
         }
 
         loadDetails();
