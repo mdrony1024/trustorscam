@@ -10,15 +10,16 @@
     <style>
         :root { --bg: #0e1621; --card: #17212b; --trust: #3390ec; --scam: #ff595a; --dim: #708499; --success: #4caf50; }
         body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; margin: 0; padding: 15px; }
+        
         .back-btn { color: var(--trust); text-decoration: none; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-weight: bold; font-size: 16px; width: fit-content; }
         
-        .detail-card { background: var(--card); border-radius: 25px; padding: 30px 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative; }
+        .detail-card { background: var(--card); border-radius: 25px; padding: 30px 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
         
         .img-container { width: 120px; height: 120px; margin: 0 auto 15px; }
         .detail-img { width: 100%; height: 100%; border-radius: 30px; object-fit: cover; border: 3px solid rgba(255,255,255,0.1); }
         
-        .name-area { font-size: 22px; font-weight: 800; margin: 10px 0; display: block; }
-        .badge { font-size: 12px; padding: 4px 10px; border-radius: 8px; font-weight: bold; text-transform: uppercase; margin-top: 8px; display: inline-block; vertical-align: middle; }
+        .name-area { font-size: 22px; font-weight: 800; margin: 10px 0; display: block; word-wrap: break-word; }
+        .badge { font-size: 12px; padding: 4px 10px; border-radius: 8px; font-weight: bold; text-transform: uppercase; margin-top: 8px; display: inline-block; }
         .badge-trust { background: rgba(51, 144, 236, 0.2); color: var(--trust); border: 1px solid var(--trust); }
         .badge-scam { background: rgba(255, 89, 90, 0.2); color: var(--scam); border: 1px solid var(--scam); }
 
@@ -26,21 +27,34 @@
         .vote-btn { 
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
             padding: 15px 40px; border-radius: 20px; cursor: pointer; transition: 0.3s;
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 140px;
         }
-        .vote-btn.active-up { background: var(--trust) !important; color: white !important; border-color: var(--trust); }
-        .vote-btn.active-down { background: var(--scam) !important; color: white !important; border-color: var(--scam); }
+        .vote-btn.active-up { background: var(--trust) !important; color: white !important; }
+        .vote-btn.active-down { background: var(--scam) !important; color: white !important; }
         .vote-btn i { font-size: 28px; }
         .vote-count { font-size: 18px; font-weight: bold; }
         .vote-label { font-size: 10px; text-transform: uppercase; color: var(--dim); font-weight: bold; }
 
-        .info-grid { text-align: left; margin-top: 25px; display: grid; gap: 12px; }
-        .info-item { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .info-grid { text-align: left; margin-top: 25px; display: grid; gap: 12px; width: 100%; }
+        .info-item { 
+            background: rgba(255,255,255,0.02); padding: 15px; border-radius: 15px; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            word-wrap: break-word; /* লম্বা লিখা ভেঙে নিচে নামাবে */
+            word-break: break-word; 
+            overflow-wrap: break-word;
+        }
         .label { color: var(--dim); font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        .value { display: block; margin-top: 6px; font-size: 15px; font-weight: 600; color: #efefef; }
+        .value { display: block; margin-top: 6px; font-size: 15px; font-weight: 600; color: #efefef; line-height: 1.4; }
         
-        .evidence-desc { color: #b1b1b1; font-size: 14px; line-height: 1.6; margin: 8px 0; white-space: pre-wrap; }
-        .ss-link { display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(51,144,236,0.1); color: var(--trust); padding: 12px; border-radius: 12px; text-decoration: none; margin-top: 10px; font-weight: bold; font-size: 14px; }
+        .evidence-desc { color: #b1b1b1; font-size: 14px; line-height: 1.6; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+        
+        .ss-link { 
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            background: rgba(51,144,236,0.1); color: var(--trust); 
+            padding: 14px; border-radius: 14px; text-decoration: none; 
+            margin-top: 10px; font-weight: bold; font-size: 14px;
+            border: 1px solid rgba(51,144,236,0.2);
+        }
     </style>
 </head>
 <body>
@@ -65,19 +79,16 @@
             if(!postId) return;
 
             const { data: post } = await _supabase.from('posts').select('*').eq('id', postId).single();
-            let userVote = null;
-            
-            if(user) {
-                const { data: voteData } = await _supabase.from('votes').select('type').eq('post_id', postId).eq('user_id', user.id.toString()).single();
-                userVote = voteData ? voteData.type : null;
-            }
             
             if(post) {
+                let userVote = null;
+                if(user) {
+                    const { data: voteData } = await _supabase.from('votes').select('type').eq('post_id', postId).eq('user_id', user.id.toString()).single();
+                    userVote = voteData ? voteData.type : null;
+                }
+
                 const isTrust = post.type === 'trust';
-                const badgeClass = isTrust ? 'badge-trust' : 'badge-scam';
-                const badgeText = isTrust ? 'Trusted' : 'Scammer';
                 
-                // উন্নত স্ক্রিনশট লজিক: কমা, নিউ-লাইন বা স্পেস থাকলে আলাদা করবে
                 let ssHtml = "";
                 if(post.image_url) {
                     const links = post.image_url.split(/[, \n\r]+/).filter(l => l.trim().startsWith('http'));
@@ -86,48 +97,35 @@
                     });
                 }
 
-                // প্রোফাইল পিকচার লজিক (pfp_link থাকলে সেটা আগে নিবে)
-                const pfp = post.pfp_link || (post.image_url ? post.image_url.split(/[, \n\r]+/)[0] : null);
-                const displayImg = (pfp && pfp.startsWith('http')) ? pfp : `https://ui-avatars.com/api/?name=${post.name}&background=random&color=fff&size=128`;
-
-                const ratingHtml = isTrust ? `
-                    <div class="rating-box">
-                        <div class="vote-btn ${userVote === 'up' ? 'active-up' : ''}" onclick="toggleVote(${post.id}, 'up')" style="color: var(--trust)">
-                            <i class="fas fa-arrow-up"></i>
-                            <span class="vote-count">${post.upvotes || 0}</span>
-                            <span class="vote-label">Up Rating</span>
-                        </div>
-                    </div>
-                ` : `
-                    <div class="rating-box">
-                        <div class="vote-btn ${userVote === 'down' ? 'active-down' : ''}" onclick="toggleVote(${post.id}, 'down')" style="color: var(--scam)">
-                            <i class="fas fa-arrow-down"></i>
-                            <span class="vote-count">${post.downvotes || 0}</span>
-                            <span class="vote-label">Down Rating</span>
-                        </div>
-                    </div>
-                `;
+                const firstLink = post.image_url ? post.image_url.split(/[, \n\r]+/)[0].trim() : '';
+                const pfp = (firstLink && firstLink.startsWith('http')) ? firstLink : `https://ui-avatars.com/api/?name=${post.name}&background=random&color=fff&size=128`;
 
                 document.getElementById('detailsArea').innerHTML = `
                     <div class="detail-card">
                         <div class="img-container">
-                            <img class="detail-img" src="${displayImg}" onerror="this.src='https://ui-avatars.com/api/?name=${post.name}'">
+                            <img class="detail-img" src="${pfp}" onerror="this.src='https://ui-avatars.com/api/?name=${post.name}'">
                         </div>
                         
                         <div class="name-area">
                             ${post.name} 
                             ${isTrust ? '<i class="fas fa-check-circle" style="color:#00a2ff; font-size:18px;"></i>' : ''}
-                            <br><span class="badge ${badgeClass}">${badgeText}</span>
+                            <br><span class="badge ${isTrust ? 'badge-trust' : 'badge-scam'}">${isTrust ? 'Trusted' : 'Scammer'}</span>
                         </div>
                         
-                        ${ratingHtml}
+                        <div class="rating-box">
+                            <div class="vote-btn ${userVote === (isTrust ? 'up' : 'down') ? (isTrust ? 'active-up' : 'active-down') : ''}" onclick="toggleVote(${post.id}, '${isTrust ? 'up' : 'down'}')" style="color: ${isTrust ? 'var(--trust)' : 'var(--scam)'}">
+                                <i class="fas fa-${isTrust ? 'arrow-up' : 'arrow-down'}"></i>
+                                <span class="vote-count">${isTrust ? (post.upvotes || 0) : (post.downvotes || 0)}</span>
+                                <span class="vote-label">${isTrust ? 'Up Rating' : 'Down Rating'}</span>
+                            </div>
+                        </div>
 
                         <div class="info-grid">
                             <div class="info-item"><span class="label">Telegram ID</span><span class="value">${post.tg_id}</span></div>
                             <div class="info-item"><span class="label">Payment Info</span><span class="value">${post.contact || 'N/A'}</span></div>
                             <div class="info-item">
                                 <span class="label">Details & Evidence</span>
-                                <div class="evidence-desc">${post.details || 'No description provided.'}</div>
+                                <div class="evidence-desc">${post.details || 'No details.'}</div>
                                 ${ssHtml}
                             </div>
                         </div>
@@ -137,8 +135,8 @@
         }
 
         async function toggleVote(postId, type) {
-            if (!user) { alert("Please use Telegram App."); return; }
-            const { data, error } = await _supabase.rpc('toggle_post_vote', { 
+            if (!user) { alert("Please use Telegram."); return; }
+            const { error } = await _supabase.rpc('toggle_post_vote', { 
                 p_post_id: parseInt(postId), 
                 p_user_id: user.id.toString(), 
                 p_type: type 
